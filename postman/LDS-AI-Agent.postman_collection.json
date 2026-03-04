@@ -52,16 +52,12 @@
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "grant_type", "value": "client_credentials", "type": "text" },
-                { "key": "client_id", "value": "{{client_id}}", "type": "text" },
-                { "key": "client_secret", "value": "{{client_secret}}", "type": "text" },
-                { "key": "scope", "value": "{{scope}}", "type": "text" },
                 { "key": "username", "value": "{{username}}", "type": "text" },
                 { "key": "password", "value": "{{password}}", "type": "text" }
               ]
             },
             "url": "{{base_url}}/api/auth/token",
-            "description": "Get access token. Body: x-www-form-urlencoded with grant_type, client_id, client_secret, scope, username, password (Admin Portal credentials). Saves access_token and refresh_token to collection variables."
+            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDS Chatbot user). Saves access_token and refresh_token to collection variables."
           }
         },
         {
@@ -106,13 +102,15 @@
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}\n"
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "refresh_token", "value": "{{refresh_token}}", "type": "text" }
+              ]
             },
             "url": "{{base_url}}/api/auth/refresh",
-            "description": "Refresh access token. Saves new access_token to environment."
+            "description": "Refresh access token. Body: x-www-form-urlencoded with refresh_token. Saves new access_token to collection variables."
           }
         },
         {
