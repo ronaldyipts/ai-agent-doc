@@ -156,7 +156,7 @@
     },
     {
       "name": "2 - Core",
-      "description": "Core chatbot and learning-design endpoints. LDS 建議優先使用 General Bot、ILO Bot。Require access_token (run 1. Retrieve Access Token first).",
+      "description": "Core chatbot and learning-design endpoints. For LDS integration, prefer General Bot and ILO Bot. Require access_token (run 1. Retrieve Access Token first).",
       "item": [
         {
           "name": "General Bot (LDS)",
@@ -168,7 +168,7 @@
               "raw": "{\n  \"message\": \"How do I write good learning outcomes?\",\n  \"courseInfo\": {},\n  \"referrer_pathname\": \"\",\n  \"form_state\": null\n}\n"
             },
             "url": "{{base_url}}/api/general_bot",
-            "description": "LDS-compatible 一般對話。必填: message, courseInfo。可選: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons。回傳: chat_message_reply, actions."
+            "description": "LDS-compatible general conversation. Required: message, courseInfo. Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions."
           }
         },
         {
@@ -181,7 +181,7 @@
               "raw": "{\n  \"courseInfo\": {},\n  \"referrer_pathname\": \"\",\n  \"form_state\": null\n}\n"
             },
             "url": "{{base_url}}/api/ilo_bot",
-            "description": "LDS-compatible 生成 ILO 建議。必填: courseInfo。可選: referrer_pathname, form_state, 學習設計陣列。回傳: chat_message_reply, actions (e.g. show_suggestion)."
+            "description": "LDS-compatible generate ILO suggestions. Required: courseInfo. Optional: referrer_pathname, form_state, learning-design arrays. Returns: chat_message_reply, actions (e.g. show_suggestion)."
           }
         },
         {

@@ -36,6 +36,8 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 |------|--------|
 | [**LDS-AI-Agent.postman_collection.json**](https://ronaldyipts.github.io/ai-agent-doc/postman/LDS-AI-Agent.postman_collection.json) | All API requests (Auth, System, Core) and built-in variables. **1. Retrieve Access Token** sends **x-www-form-urlencoded** body: `username`, `password`. Click the link to download, then Import in Postman. |
 
+**Maintainers:** The download link serves the file from **`static/postman/LDS-AI-Agent.postman_collection.json`**. After editing the source collection in **`postman/LDS-AI-Agent.postman_collection.json`**, copy it to **`static/postman/`** before building/deploying so the public link serves the latest version.
+
 ## Collection structure
 
 - **0 - Auth**: **1. Retrieve Access Token** (form body: `username`, `password` → saves token), OAuth2 code exchange, Refresh Token, Me, Logout. **No public registration**; accounts are created by an admin (POST /api/auth/users).
