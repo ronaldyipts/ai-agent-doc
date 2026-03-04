@@ -67,9 +67,9 @@ API Endpoints
   - POST /api/auth/refresh - Refresh token
   - GET /api/auth/me - Get current user info
   - POST /api/auth/logout - Logout
-- LDS-compatible (2) — 主系統整合建議優先使用
-  - POST /api/general_bot - 一般對話；body 含 courseInfo、可選 referrer_pathname、form_state、學習設計陣列
-  - POST /api/ilo_bot - 生成 ILO 建議；body 含 courseInfo、可選 referrer_pathname、form_state、學習設計陣列
+- LDS-compatible (2) — recommended for main system integration
+  - POST /api/general_bot - General conversation; body includes courseInfo, optional referrer_pathname, form_state, and learning-design arrays
+  - POST /api/ilo_bot - Generate ILO suggestions; body includes courseInfo, optional referrer_pathname, form_state, and learning-design arrays
 - Core Features (6)
   - POST /api/chat - General chat interface
   - POST /api/generate_ilos - Generate Intended Learning Outcomes
@@ -138,7 +138,7 @@ admin_portal/frontend/
 │   └── styles.css
 ```
 
-Admin Portal 登入頁僅提供登入，**無**「Sign Up / Register」連結；**無**預設 admin 帳密提示。新用戶須由既有 admin 透過 **POST /api/auth/users** 建立（或日後在 Admin Portal 新增「User Management」頁面）。
+Admin Portal login page provides **login only**; there is **no** “Sign Up / Register” link and **no** default admin credentials. New users must be created by an existing admin via **POST /api/auth/users** (or a future “User Management” page in the Admin Portal).
 
 ### 2.3.2 Backend Architecture
 Tech Stack
@@ -171,11 +171,11 @@ admin_portal/backend/
 ```
 
 API Endpoints
-- /api/auth/token - Login（form body: username, password）
+- /api/auth/token - Login (form body: username, password)
 - /api/auth/me - User Info
-- **POST /api/auth/users** - Create user（**Admin only**；需 Bearer token 且當前用戶為 admin）。Body：username, password, email, full_name，可選 is_admin。**公開註冊已停用**，帳號須由管理員建立。
+- **POST /api/auth/users** - Create user (**Admin only**; requires Bearer token and current user must be admin). Body: username, password, email, full_name, optional is_admin. **Public registration is disabled**; accounts must be created by an administrator.
 - /api/clients - Client Management (CRUD)
 - /oauth/authorize - OAuth2 Authorization Endpoint
 - /oauth/token - OAuth2 Token Endpoint
 
-**說明**：不再自動建立 default admin；首次使用需透過既有 admin 或資料庫／bootstrap 建立首個 admin。原「POST /api/auth/register - Register」已停用（回傳 403）。
+**Note**: A default admin is no longer created automatically; the first admin must be created via an existing admin or database/bootstrap. The former “POST /api/auth/register - Register” is disabled (returns 403).

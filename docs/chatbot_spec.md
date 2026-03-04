@@ -109,18 +109,18 @@ Example
 }
 ```
 
-## 4.5 RAG 與檢索
-Agent 使用 **RAG（Retrieval-Augmented Generation）** 提升回覆品質，檢索來源包括 LDS 用戶指南、iLAP 用戶指南等。
+## 4.5 RAG and retrieval
+The Agent uses **RAG (Retrieval-Augmented Generation)** to improve reply quality. Retrieval sources include the LDS user guide, iLAP user guide, and similar documentation.
 
-- **Clustering（分桶）**：資料按類型分桶（buckets），例如 ILO、DP（Disciplinary Practices）、PA（Pedagogical Approaches）、assessment、activity、general、ilap 等。
-- **檢索策略**：依請求類型或訊息推斷，檢索對應類型內容，再組合成 context 供生成使用。
+- **Clustering (buckets)**: Data is grouped by type (e.g. ILO, DP, PA, assessment, activity, general, ilap). Retrieval targets the relevant bucket(s) based on request type or inferred intent.
+- **Retrieval strategy**: Depending on the request type or message, the Agent retrieves content from the appropriate bucket(s) and combines it into context for generation.
 
-## 4.6 LDS 上下文
-當 LDS 主系統傳入 **`courseInfo`**、**`referrer_pathname`**、**`form_state`** 時（例如透過 `/api/general_bot` 或 `/api/ilo_bot`），Agent 會將這些納入生成 context，使回覆與用戶當前編輯的課程／表單一致。
+## 4.6 LDS context
+When the LDS main system sends **`courseInfo`**, **`referrer_pathname`**, and **`form_state`** (e.g. via `/api/general_bot` or `/api/ilo_bot`), the Agent includes them in the generation context so that replies align with the course/form the user is editing.
 
-- **courseInfo**：課程相關資訊，供 Agent 理解當前課程情境。
-- **referrer_pathname**：用戶所在頁面路徑，可協助判斷當前編輯階段。
-- **form_state**：與 LDS 前端表單同結構的狀態；Agent 可選用 **LDS REST API for Chatbot**（Options API）將 form_state 中的 ID（如 grade_level_id, subject_ids）解析為可讀名稱，再納入 context。
+- **courseInfo**: Course-related information so the Agent understands the current course context.
+- **referrer_pathname**: The page path the user is on, to help infer the current editing stage.
+- **form_state**: State in the same structure as the LDS front-end form. The Agent may call the **LDS REST API for Chatbot** (Options API) to resolve IDs in form_state (e.g. grade_level_id, subject_ids) to human-readable names before including them in context.
 
 ## 4.7 Conversation History Management
 - Recent history: only last 10 messages included

@@ -4,10 +4,10 @@ sidebar_position: 3
 
 # Chapter 3: Login Page
 
-本章描述 **主應用（LDS Chatbot）** 的登入頁。主應用登入 endpoint 為 **POST /api/auth/login**（form: username, password）。**Admin Portal** 登入為 **POST /api/auth/token**（form body: username, password），且無公開註冊；帳號由管理員透過 **POST /api/auth/users** 建立，詳見 [Application Architecture](./app_archi.md)。
+This chapter describes the **main application (LDS Chatbot)** login page. The main app uses **POST /api/auth/login** (form: username, password). The **Admin Portal** uses **POST /api/auth/token** (form body: username, password) and has **no public registration**; accounts are created by an administrator via **POST /api/auth/users**. See [Chapter 2: Application Architecture](./app_archi.md) for Admin Portal details.
 
 ## 3.1 Overview
-- Entry point for **LDS Chatbot**（主應用）user authentication.
+- Entry point for **LDS Chatbot** (main application) user authentication.
 - Supports Traditional Chinese and English.
 
 ## 3.2 Features
@@ -26,7 +26,7 @@ sidebar_position: 3
 
 ### 3.2.3 Navigation Links
 - Forgot Password: Navigate to password reset page (still under development)
-- Sign Up：若主應用有提供註冊入口則顯示「Navigate to registration page」；**Admin Portal 無公開註冊**，帳號由管理員建立。
+- Sign Up: Shown only if the main application provides a registration entry (navigate to registration page). **The Admin Portal has no public registration**; accounts are created by an administrator.
 - Responsive design
 
 ## 3.3 Technical Details

@@ -6,4 +6,4 @@ sidebar_position: 1
 
 This specification defines the rationale of designing the LDS External AI agent.
 
-**LDS 整合**：主系統（LDS）可透過 **general_bot**、**ilo_bot** 端點傳入 `courseInfo` 與 `form_state`，Agent 會據此提供情境化回覆與 ILO 建議。詳見 [主系統可呼叫本子系統的功能](./main_system_integration.md)。
+**LDS integration**: The main system (LDS) can send `courseInfo` and `form_state` via the **general_bot** and **ilo_bot** endpoints; the Agent uses them to provide contextual replies and ILO suggestions. See [Chapter 6: Main System Integration](./main_system_integration.md).

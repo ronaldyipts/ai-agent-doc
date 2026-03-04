@@ -6,7 +6,7 @@ sidebar_position: 5
 
 A curated **Postman Collection** is provided for streamlined testing. **Import only one JSON file** (the collection). Set **username** and **password** (the AI agent's Admin Portal credentials, not LDS) in the collection variables, run **1. Retrieve Access Token**, then call any API.
 
-**Auth 說明**：Admin Portal **不再提供公開註冊**；帳號須由既有 admin 透過 **POST /api/auth/users** 建立（或首次部署時以其他方式建立首個 admin）。取得 token 前請先由管理員建立帳號。
+**Auth**: The Admin Portal **does not offer public registration**. Accounts must be created by an existing admin via **POST /api/auth/users** (or by creating the first admin during initial deployment). Obtain a token only after an administrator has created your account.
 
 ## Workflow (4 steps)
 
@@ -27,8 +27,8 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 
 4. **Call the APIs**
    - All requests in **2 - Core** (and **Me** / **Logout** in Auth) use the saved Bearer token.
-   - **LDS 整合建議**：使用 **General Bot**、**ILO Bot**（body 含 `courseInfo`、可選 `referrer_pathname`、`form_state`）。
-   - 其餘：Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation。
+   - **For LDS integration**: Prefer **General Bot** and **ILO Bot** (body: `courseInfo`, optional `referrer_pathname`, `form_state`).
+   - Others: Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
 
 ## File
 
@@ -38,18 +38,18 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 
 ## Collection structure
 
-- **0 - Auth**: **1. Retrieve Access Token** (form body: grant_type, client_id, client_secret, scope, username, password → saves token), OAuth2 code exchange, Refresh Token, Me, Logout. **無公開註冊**；帳號由 admin 建立（POST /api/auth/users）。
+- **0 - Auth**: **1. Retrieve Access Token** (form body: grant_type, client_id, client_secret, scope, username, password → saves token), OAuth2 code exchange, Refresh Token, Me, Logout. **No public registration**; accounts are created by an admin (POST /api/auth/users).
 - **1 - System**: Health check (root and `/api/health`).
-- **2 - Core**: **General Bot**、**ILO Bot**（LDS 建議優先使用；body 含 `message`/`courseInfo`、可選 `referrer_pathname`、`form_state`）、Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
+- **2 - Core**: **General Bot**, **ILO Bot** (recommended for LDS; body: `message`/`courseInfo`, optional `referrer_pathname`, `form_state`), Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
 
-### LDS 專用端點（General Bot / ILO Bot）
+### LDS-dedicated endpoints (General Bot / ILO Bot)
 
-| 請求 | Endpoint | Body 必填 | Body 可選 |
-|------|----------|-----------|-----------|
+| Request | Endpoint | Required body | Optional body |
+|---------|----------|---------------|---------------|
 | **General Bot** | POST `/api/general_bot` | `message`, `courseInfo` | `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons` |
-| **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, 同上學習設計陣列 |
+| **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, same learning-design arrays as above |
 
-回傳格式：`{ chat_message_reply: { text }, actions: [...] }`。若 collection 尚未包含此兩支，可參考 [主系統可呼叫本子系統的功能](./main_system_integration.md) 自行新增。
+Response format: `{ chat_message_reply: { text }, actions: [...] }`. If the collection does not yet include these two requests, add them manually; see [Chapter 6: Main System Integration](./main_system_integration.md).
 
 ## Collection variables
 
