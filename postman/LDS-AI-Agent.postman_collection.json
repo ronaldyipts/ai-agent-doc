@@ -57,7 +57,7 @@
               ]
             },
             "url": "{{base_url}}/api/auth/token",
-            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDS Chatbot user). Saves access_token and refresh_token to collection variables."
+            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDS Chatbot user). When the server has ADMIN_PORTAL_URL set, credentials are validated against the Admin Portal user DB. Saves access_token and refresh_token to collection variables."
           }
         },
         {

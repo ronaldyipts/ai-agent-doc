@@ -109,11 +109,43 @@ Example
 }
 ```
 
-## 4.5 RAG and retrieval
-The Agent uses **RAG (Retrieval-Augmented Generation)** to improve reply quality. Retrieval sources include the LDS user guide, iLAP user guide, and similar documentation.
+## 4.5 RAG and request-type clustering (including LDT / Theory)
+The Agent uses **RAG (Retrieval-Augmented Generation)** to improve reply quality by injecting relevant reference content from the iLAP User Guide and the **Learning Design Studio (LDS) User Guide** into prompts. To retrieve the right kind of content for each request, the system uses **clustering**: reference content is grouped into **buckets** by topic, and the bucket used for retrieval is chosen from the user’s message (or from the endpoint, e.g. ILO bot).
 
-- **Clustering (buckets)**: Data is grouped by type (e.g. ILO, DP, PA, assessment, activity, general, ilap). Retrieval targets the relevant bucket(s) based on request type or inferred intent.
-- **Retrieval strategy**: Depending on the request type or message, the Agent retrieves content from the appropriate bucket(s) and combines it into context for generation.
+### 4.5.1 RAG buckets
+Reference chunks are assigned to one of the following buckets at index build time and used at query time:
+
+| Bucket | Description | Example use |
+|--------|-------------|-------------|
+| **ILO** | Intended Learning Outcomes, Bloom’s taxonomy | “How do I write ILOs?” |
+| **DP** | Disciplinary Practices | “Suggest a disciplinary practice” |
+| **PA** | Pedagogical Approaches | “What pedagogical approach fits?” |
+| **assessment** | Assessment, rubrics, evaluation | “Design an assessment” |
+| **activity** | Learning activities, tasks | “Suggest an activity” |
+| **Theory** | **LDT (Learning Design Theory)** and theoretical foundations | “What is the theory behind LDS?” |
+| **general** | General guidance | Fallback when no other bucket matches |
+| **ilap** | iLAP-specific content | Default for iLAP PDF chunks |
+
+### 4.5.2 LDT chapter / Theory bucket
+The **Theory** bucket corresponds to the **LDT (Learning Design Theory)** chapter and related theoretical content in the **LDS User Guide**. When users ask about learning design theory, pedagogical theory, or conceptual foundations, the Agent prefers chunks in this bucket so answers align with LDS documentation.
+
+**Trigger keywords (Theory bucket)**  
+User messages containing any of the following (case-insensitive) are mapped to the Theory bucket for retrieval:
+
+- **English:** `theory`, `ldt`, `learning design theory`, `learning theory`, `constructivism`, `pedagogy theory`, `theoretical`, `theory behind`, `conceptual framework`
+- **Chinese:** `理論`, `學習設計理論`, `教學理論`, `設計理論`, `建構主義`, `理論基礎`, `理論架構`
+
+Example queries that use the Theory bucket: “What is the learning design theory behind LDS?”; “Explain the theoretical basis of the LDS framework.”; “學習設計理論是什麼？” / “LDT 章節講什麼？”
+
+Chunks from the LDS User Guide that discuss LDT or these topics are tagged with the **Theory** bucket during index build and are then retrieved when the inferred request type is Theory.
+
+### 4.5.3 Retrieval flow
+1. **Index build**: PDFs (e.g. iLAP + LDS User Guide) are chunked, embedded, and each chunk is assigned a bucket (including **Theory** for LDT-related content).
+2. **Request handling**: For each user message, the backend infers a request type (bucket) via keyword matching.
+3. **Retrieval**: Chunks are retrieved with the inferred bucket preferred (same-bucket chunks are boosted; others may be down-weighted).
+4. **Prompt**: The retrieved text is appended to the prompt as reference material so the model can cite the LDS User Guide (including the LDT chapter) and iLAP where appropriate.
+
+The **ILO bot** endpoint (`/api/ilo_bot`) always uses the **ILO** bucket for RAG. The **general bot** (`/api/general_bot`) uses the inferred bucket (including **Theory** for LDT/theory questions).
 
 ## 4.6 LDS context
 When the LDS main system sends **`courseInfo`**, **`referrer_pathname`**, and **`form_state`** (e.g. via `/api/general_bot` or `/api/ilo_bot`), the Agent includes them in the generation context so that replies align with the course/form the user is editing.
