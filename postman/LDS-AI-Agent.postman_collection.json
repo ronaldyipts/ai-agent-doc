@@ -151,6 +151,14 @@
             "url": "{{base_url}}/api/health",
             "description": "Detailed API health check."
           }
+        },
+        {
+          "name": "Get Agent Info",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/info",
+            "description": "Returns agent capabilities: chatbot_paths and tasks (id, name, description, path) for LDS UI."
+          }
         }
       ]
     },
@@ -181,7 +189,22 @@
               "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null\n}\n"
             },
             "url": "{{base_url}}/api/ilo_bot",
-            "description": "LDS-compatible ILO suggestions. Required: courseInfo (include topic, grade_level_id, subjects for context; IDs are resolved via LDS options). Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions with show_suggestion. Each suggestion is mandatory: statement, type_id (ILO category), bloom_taxonomy_level_id; optional: action_verb. The agent always fetches bloom_taxonomy_levels and ilo_types so these IDs can be returned."
+            "description": "LDS-compatible ILO suggestions. Required: courseInfo (include topic, grade_level_id, subjects for context; IDs are resolved via LDS options). Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions with show_suggestion. Each suggestion includes: statement (required), type_id (ILO category, required), bloom_taxonomy_level_id (required), action_verb (optional). The agent always fetches bloom_taxonomy_levels and ilo_types so these IDs can be returned.",
+            "response": [
+              {
+                "name": "Example: ILO response with category and Bloom level",
+                "originalRequest": {
+                  "method": "POST",
+                  "header": [ { "key": "Content-Type", "value": "application/json" } ],
+                  "body": { "mode": "raw", "raw": "{\n  \"courseInfo\": { \"topic\": \"Engineering Design\", \"grade_level_id\": 5, \"subjects\": [4, 5] },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null\n}\n" },
+                  "url": "{{base_url}}/api/ilo_bot"
+                },
+                "status": "OK",
+                "code": 200,
+                "_postman_previewlanguage": "json",
+                "body": "{\n  \"chat_message_reply\": { \"text\": \"Here are suggested ILOs based on your course context.\" },\n  \"actions\": [\n    {\n      \"action_type\": \"show_suggestion\",\n      \"target\": { \"context\": \"ILO\", \"context_object_id\": 0 },\n      \"payload\": {\n        \"suggestions\": [\n          { \"statement\": \"Describe the main steps of the engineering design process.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2, \"action_verb\": \"Describe\" },\n          { \"statement\": \"Explain the purpose of each stage in the engineering design cycle.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2, \"action_verb\": \"Explain\" },\n          { \"statement\": \"Summarize how inquiry skills are applied during engineering design.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2, \"action_verb\": \"Summarize\" }\n        ]\n      },\n      \"ui\": { \"presentation\": \"popup\", \"highlight_target\": \"#ILO.view-pattern\" }\n    }\n  ]\n}\n"
+              }
+            ]
           }
         },
         {

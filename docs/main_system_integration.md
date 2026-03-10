@@ -26,7 +26,14 @@ When LDS triggers the request from a form page (e.g. Course Information, ILO edi
 - **Purpose**: Get AI-suggested Intended Learning Outcomes (e.g. when the user clicks “AI suggest ILO”).
 - **Required**: `courseInfo`
 - **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
-- **Response**: `{ chat_message_reply: { text }, actions: [ show_suggestion, ... ] }`
+- **Response**:  
+  - Top level: `{ chat_message_reply: { text }, actions: [ ... ] }`  
+  - For each `show_suggestion` action, `payload.suggestions[]` contains items with:  
+    - `statement` — ILO text (string)  
+    - `type_id` — **LDS ILO category/type ID (integer, mandatory)**  
+    - `bloom_taxonomy_level_id` — **LDS Bloom taxonomy level ID (integer, mandatory)**  
+
+LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO category and Bloom level fields** when writing the suggestion back into the ILO form.
 
 #### Button-triggered “AI suggest ILO” flow (main system → sub-system)
 

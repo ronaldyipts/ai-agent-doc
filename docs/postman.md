@@ -51,7 +51,17 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 | **General Bot** | POST `/api/general_bot` | `message`, `courseInfo` | `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons` |
 | **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, same learning-design arrays as above |
 
-Response format: `{ chat_message_reply: { text }, actions: [...] }`. If the collection does not yet include these two requests, add them manually; see [Chapter 6: Main System Integration](./main_system_integration.md).
+Response format (both endpoints) is `{ chat_message_reply: { text }, actions: [...] }`.
+
+For **ILO Bot**, each suggestion in `actions[].payload.suggestions[]` includes:
+
+- `statement` — ILO text (string)
+- `type_id` — **LDS ILO category/type ID (integer, mandatory)**
+- `bloom_taxonomy_level_id` — **LDS Bloom taxonomy level ID (integer, mandatory)**
+
+LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO category and Bloom level fields** in the ILO form.
+
+If the collection does not yet include these two requests, add them manually; see [Chapter 6: Main System Integration](./main_system_integration.md).
 
 ## Collection variables
 
