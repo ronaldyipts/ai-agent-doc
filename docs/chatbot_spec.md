@@ -95,7 +95,7 @@ Generation Criteria
 - Based on conversation history (last 6 messages)
 - Analyzes bot response type (guiding vs. suggesting)
 - Presented in "user speaking to bot" format
-- Each suggestion <= 25 characters
+- Each suggestion is 25 characters or fewer
 - Specific and actionable
 
 Example
