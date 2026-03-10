@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Chapter 6: Main System Integration | LDS External AI Agent Documentation</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://ronaldyipts.github.io/ai-agent-doc/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://ronaldyipts.github.io/ai-agent-doc/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://ronaldyipts.github.io/ai-agent-doc/docs/main_system_integration"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Chapter 6: Main System Integration | LDS External AI Agent Documentation"><meta data-rh="true" name="description" content="This page describes what the main system (LDS) can ask this sub-system (AI Agent) to do. Once the main system has the API endpoint, Client ID, Client Secret, and Access Key, it can trigger the following APIs. The main system must obtain an access token first (see Chapter 5 Bearer ."><meta data-rh="true" property="og:description" content="This page describes what the main system (LDS) can ask this sub-system (AI Agent) to do. Once the main system has the API endpoint, Client ID, Client Secret, and Access Key, it can trigger the following APIs. The main system must obtain an access token first (see Chapter 5 Bearer ."><link data-rh="true" rel="icon" href="/ai-agent-doc/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://ronaldyipts.github.io/ai-agent-doc/docs/main_system_integration"><link data-rh="true" rel="alternate" href="https://ronaldyipts.github.io/ai-agent-doc/docs/main_system_integration" hreflang="en"><link data-rh="true" rel="alternate" href="https://ronaldyipts.github.io/ai-agent-doc/docs/main_system_integration" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Chapter 6: Main System Integration","item":"https://ronaldyipts.github.io/ai-agent-doc/docs/main_system_integration"}]}</script><link rel="alternate" type="application/rss+xml" href="/ai-agent-doc/blog/rss.xml" title="LDS External AI Agent Documentation RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/ai-agent-doc/blog/atom.xml" title="LDS External AI Agent Documentation Atom Feed"><link rel="stylesheet" href="/ai-agent-doc/assets/css/styles.761b036b.css">
-<script src="/ai-agent-doc/assets/js/runtime~main.40abe8c8.js" defer="defer"></script>
+<script src="/ai-agent-doc/assets/js/runtime~main.5ee349a4.js" defer="defer"></script>
 <script src="/ai-agent-doc/assets/js/main.76099ebc.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -30,8 +30,20 @@
 <li class=""><strong>Purpose</strong>: Get AI-suggested Intended Learning Outcomes (e.g. when the user clicks “AI suggest ILO”).</li>
 <li class=""><strong>Required</strong>: <code>courseInfo</code></li>
 <li class=""><strong>Optional</strong>: <code>referrer_pathname</code>, <code>form_state</code>, <code>disciplinaryPractices</code>, <code>pedagogicalApproaches</code>, <code>intendedLearningOutcomes</code>, <code>lessons</code></li>
-<li class=""><strong>Response</strong>: <code>{ chat_message_reply: { text }, actions: [ show_suggestion, ... ] }</code></li>
+<li class=""><strong>Response</strong>:<!-- -->
+<ul>
+<li class="">Top level: <code>{ chat_message_reply: { text }, actions: [ ... ] }</code></li>
+<li class="">For each <code>show_suggestion</code> action, <code>payload.suggestions[]</code> contains items with:<!-- -->
+<ul>
+<li class=""><code>statement</code> — ILO text (string)</li>
+<li class=""><code>type_id</code> — <strong>LDS ILO category/type ID (integer, mandatory)</strong></li>
+<li class=""><code>bloom_taxonomy_level_id</code> — <strong>LDS Bloom taxonomy level ID (integer, mandatory)</strong></li>
 </ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>LDS can use <code>type_id</code> and <code>bloom_taxonomy_level_id</code> to <strong>pre-fill the ILO category and Bloom level fields</strong> when writing the suggestion back into the ILO form.</p>
 <h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="button-triggered-ai-suggest-ilo-flow-main-system--sub-system">Button-triggered “AI suggest ILO” flow (main system → sub-system)<a href="#button-triggered-ai-suggest-ilo-flow-main-system--sub-system" class="hash-link" aria-label="Direct link to Button-triggered “AI suggest ILO” flow (main system → sub-system)" title="Direct link to Button-triggered “AI suggest ILO” flow (main system → sub-system)" translate="no">​</a></h4>
 <ol>
 <li class=""><strong>Main system UI</strong>: Add a button (e.g. “AI suggest ILO”) on the course/unit edit page.</li>
