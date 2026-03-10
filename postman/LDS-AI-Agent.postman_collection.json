@@ -178,10 +178,10 @@
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseInfo\": {},\n  \"referrer_pathname\": \"\",\n  \"form_state\": null\n}\n"
+              "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null\n}\n"
             },
             "url": "{{base_url}}/api/ilo_bot",
-            "description": "LDS-compatible generate ILO suggestions. Required: courseInfo. Optional: referrer_pathname, form_state, learning-design arrays. Returns: chat_message_reply, actions (e.g. show_suggestion)."
+            "description": "LDS-compatible ILO suggestions. Required: courseInfo (include topic, grade_level_id, subjects for context; IDs are resolved via LDS options). Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions with show_suggestion. Each suggestion is mandatory: statement, type_id (ILO category), bloom_taxonomy_level_id; optional: action_verb. The agent always fetches bloom_taxonomy_levels and ilo_types so these IDs can be returned."
           }
         },
         {
