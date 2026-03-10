@@ -89,11 +89,6 @@ AI Integration Layer (api/utils.py)
 - validate_response_format() - Validates JSON response format
 - generate_suggested_questions() - Generates follow-up questions
 
-RAG and request-type clustering (api/rag_common.py, rag/build_ilap_index.py)
-- Reference content from the iLAP and LDS User Guides is chunked and assigned to buckets (ILO, DP, PA, assessment, activity, **Theory**, general, ilap).
-- The **Theory** bucket aligns with the LDT (Learning Design Theory) chapter in the LDS User Guide; theory-related queries retrieve from this bucket.
-- Retrieval is bucket-aware: the inferred request type (from user message keywords) determines which bucket is preferred. See Chapter 4, section 4.5.
-
 LDS API Integration Layer
 - make_lds_request() - LDS API Request (supports multiple auth formats)
 - call_lds_api() - Call LDS API by name
