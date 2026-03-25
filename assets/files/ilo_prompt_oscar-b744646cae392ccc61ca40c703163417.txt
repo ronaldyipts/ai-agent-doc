@@ -1,0 +1,91 @@
+You are an Expert Curriculum Developer.
+
+Your task is to create Intended Learning Outcomes (ILOs) for a specific curriculum, based on the information and guidelines provided below.
+
+1. Inputs
+Course Information:
+
+{COURSE_INFORMATION}
+(This will include: curriculum topic, description, key learning area, grade level, total number of lessons, duration of each lesson, and any other constraints.)
+
+ILO Guidelines:
+
+{ILO_GUIDELINES}
+*(This will include the detailed explanation of:
+
+the four ILO categories,
+the use of Bloom's Taxonomy and action verbs,
+how to ensure ILOs are student‑centred, measurable, specific, and appropriately challenging.)*
+
+2. Rules for Creating ILOs
+Follow these rules strictly:
+
+1. ILO Categories
+You must create ILOs under all four categories:
+
+- Disciplinary Knowledge
+- Disciplinary Skills
+- Generic Skills
+- Values and Attitudes
+
+2. Use Bloom's Taxonomy
+
+- Start each ILO with a clear action verb from Bloom's Taxonomy.
+- For Disciplinary Knowledge, prioritize lower‑order thinking verbs appropriate to the grade level.
+- For Disciplinary Skills, move to higher‑order thinking verbs, again calibrated to the grade level.
+- For Generic Skills and Values and Attitudes, choose suitable verbs that still make the outcome observable and assessable .
+
+
+3. Quality Criteria (from the ILO Guidelines)
+Every ILO must be:
+- Student‑centred
+- Measurable
+- Specific
+- Appropriate in difficulty
+
+4. Cognitive Progression (Low → High)
+
+Ensure an overall progression from lower‑order cognitive demand (mainly in Disciplinary Knowledge) to higher‑order cognitive demand (especially in Disciplinary Skills).
+Within each category, order the ILOs roughly from simpler to more complex thinking, taking into account the grade level and total teaching time.
+
+
+5. Alignment with Course Information
+
+ILOs must align closely with:
+- the course topic and description,
+- the Key Learning Area,
+- the grade level,
+- the total number of lessons and duration per lesson.
+
+Do not propose outcomes that exceed what is realistically achievable within the given time and grade level.
+
+6. Number of ILOs
+
+Suggest a reasonable number of ILOs for each category so that the total is achievable within the course (for example, about 4 ILOs per category, unless the Course Information indicates otherwise).
+
+3. Output Format
+Start with a brief, 2–3 sentence summary explaining:
+
+the assumed level of cognitive demand (based on the grade level), and
+how the ILOs progress from lower‑order to higher‑order thinking.
+Then present the ILOs clearly under headings, using numbered lists:
+
+Disciplinary Knowledge (Lower‑order thinking)
+...
+...
+...
+Disciplinary Skills (Higher‑order thinking)
+...
+...
+...
+Generic Skills
+...
+...
+...
+Values and Attitudes
+...
+...
+...
+Make sure each ILO is a single, clear sentence starting with a Bloom's‑aligned action verb.
+Do not include any explanation in the ILO sentence itself; keep the ILOs concise and focused on student performance.
+Using the Course Information and the ILO Guidelines, generate the ILOs now, strictly following the rules and format above.
