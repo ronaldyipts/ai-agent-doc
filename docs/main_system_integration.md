@@ -21,19 +21,25 @@ When integrating with the LDS main system, **use these two LDS-compatible endpoi
 
 When LDS triggers the request from a form page (e.g. Course Information, ILO edit page), it can send **`form_state`** (same structure as the front-end form). The Agent uses it to build context; IDs can be resolved to human-readable names via the LDS Options API if needed.
 
+#### DRAFT: `open_ilo_bot` action (General Bot → ILO Bot)
+
+The Agent **may** (once implemented) return an action with **`action_type: "open_ilo_bot"`** when the user is ILO-focused, so LDS can show a button that then calls **POST `/api/ilo_bot`**. **Contract, examples, responsibilities:** [LDS handoff: General Bot → ILO Bot](./lds_handoff_general_bot_open_ilo_bot.md). **Status:** DRAFT; production may not emit this yet.
+
 ### POST `/api/ilo_bot` — Generate ILO suggestions
 
 - **Purpose**: Get AI-suggested Intended Learning Outcomes (e.g. when the user clicks “AI suggest ILO”).
 - **Required**: `courseInfo`
 - **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
-- **Response**:  
-  - Top level: `{ chat_message_reply: { text }, actions: [ ... ] }`  
-  - For each `show_suggestion` action, `payload.suggestions[]` contains items with:  
-    - `statement` — ILO text (string)  
-    - `type_id` — **LDS ILO category/type ID (integer, mandatory)**  
-    - `bloom_taxonomy_level_id` — **LDS Bloom taxonomy level ID (integer, mandatory)**  
+- **Response**:
+  - Top level: `{ chat_message_reply: { text }, actions: [ ... ] }`
+  - For each `show_suggestion` action, `payload.suggestions[]` items include:
+    - `statement` — ILO text (string)
+    - `type_id` — **LDS ILO category/type ID (integer, mandatory)**
+    - `bloom_taxonomy_level_id` — **LDS Bloom taxonomy level ID (integer, mandatory)**
 
-LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO category and Bloom level fields** when writing the suggestion back into the ILO form.
+LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO category and Bloom level fields** when writing suggestions back into the ILO form.
+
+**ILO prompt (Oscar):** ILO generation follows the rules in [ILO Prompt (Oscar)](./prompts/ilo_prompt_oscar.txt): four ILO categories (Disciplinary Knowledge, Disciplinary Skills, Generic Skills, Values and Attitudes), Bloom’s Taxonomy verbs, quality criteria (student-centred, measurable, specific, appropriate difficulty), cognitive progression, alignment with course information, and suggested counts per category (e.g. about four). Placeholders `{COURSE_INFORMATION}` and `{ILO_GUIDELINES}` are filled from the request body and RAG or guideline content.
 
 #### Button-triggered “AI suggest ILO” flow (main system → sub-system)
 

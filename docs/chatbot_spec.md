@@ -11,7 +11,7 @@ The chatbot employs a Socratic Nudging Engine that adapts its teaching style bas
   - Instead of direct answers, asks thought-provoking questions
 - Dynamic Scaffolding
   - Adjusts support level based on user response length
-  - High Scaffolding (User response: < 10 characters)
+  - High Scaffolding (User response: under 10 characters)
     - Provides very detailed guidance
     - Offers multiple specific options
     - Includes examples and step-by-step instructions
@@ -19,7 +19,7 @@ The chatbot employs a Socratic Nudging Engine that adapts its teaching style bas
     - Provides moderate guidance
     - Offers 2-3 options
     - Brief explanations
-  - Low Scaffolding (> 30 characters)
+  - Low Scaffolding (over 30 characters)
     - Provides concise guidance
     - Asks 1-2 key questions
     - Minimal prompts
@@ -57,7 +57,7 @@ In Scope Keywords
   - 模式, 建議, 指引, 選項, 導航
 
 Out of Scope Handling
-If a query is out of scope, the chatbot returns:
+If a query is out of scope, the chatbot returns a message such as the following (locale may vary; Traditional Chinese is common for HK deployments):
 ```
 {
   "chat_message_reply": {
@@ -66,6 +66,7 @@ If a query is out of scope, the chatbot returns:
   "actions": []
 }
 ```
+**English equivalent (reference):** “Sorry, I specialize in learning design and course planning. Please ask questions related to your course.”
 
 Special Handling
 - Greetings: Always accepted (你好, hello, hi, etc.)
@@ -98,13 +99,13 @@ Generation Criteria
 - Each suggestion is 25 characters or fewer
 - Specific and actionable
 
-Example
+Example (English UI; Traditional Chinese variants are allowed when the app locale is zh-HK)
 ```
 {
   "suggested_questions": [
-    "我想了解如何應用 Bloom's Taxonomy",
-    "我的目標是設計有效的評量方式",
-    "我考慮使用項目式學習方法"
+    "How can I apply Bloom's Taxonomy here?",
+    "I want to design effective assessments",
+    "I'm considering project-based learning"
   ]
 }
 ```

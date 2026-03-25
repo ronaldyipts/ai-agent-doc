@@ -22,7 +22,7 @@ This chapter describes the **main application (LDS Chatbot)** login page. The ma
 ### 3.2.2 Branding
 - Displays IDEALS Logo
 - Displays Learning Design Studio Logo
-- Shows "聊天機器人" (Chatbot) badge
+- Shows a Chatbot badge
 
 ### 3.2.3 Navigation Links
 - Forgot Password: Navigate to password reset page (still under development)
