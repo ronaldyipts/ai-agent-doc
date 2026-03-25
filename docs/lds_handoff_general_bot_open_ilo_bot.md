@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# LDS handoff: General Bot suggests opening ILO Bot (`open_ilo_bot` action)
+# Chapter 8: LDS handoff: General Bot suggests opening ILO Bot (`open_ilo_bot` action)
 
 **Status: DRAFT (proposal)**  
 **Goal:** When a user in **General Bot** expresses intent related to **ILOs (Intended Learning Outcomes)**, the backend may include an **`open_ilo_bot`** entry in the `actions` array so **LDS UI** can show a button (or equivalent). After the user confirms, LDS calls **`POST /api/ilo_bot`**.

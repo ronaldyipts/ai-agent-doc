@@ -2,7 +2,7 @@
 sidebar_position: 9
 ---
 
-# Action Items Progress (AI Agent Development and Optimization)
+# Chapter 9: Action Items Progress (AI Agent Development and Optimization)
 
 This page maps the main **AI Agent development and optimization** items to what is currently covered in documentation and implementation.
 
