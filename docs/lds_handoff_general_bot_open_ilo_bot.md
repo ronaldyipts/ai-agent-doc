@@ -121,7 +121,7 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
         "intent": "generate_ilos",
         "trigger_reason": "user_asked_generate_ilo",
         "confirm_required": true,
-        "button_label_zh": "開啟 ILO Bot",
+        "button_label_zh": "生成預期學習成果建議",
         "button_label_en": "Open ILO Bot"
       },
       "ui": {
@@ -147,7 +147,7 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
       "payload": {
         "intent": "refine_ilos",
         "trigger_reason": "user_on_ilo_edit_page",
-        "button_label_zh": "用 ILO Bot 優化此條 ILO",
+        "button_label_zh": "生成預期學習成果建議",
         "button_label_en": "Refine with ILO Bot"
       },
       "ui": { "presentation": "inline", "highlight_target": "" }

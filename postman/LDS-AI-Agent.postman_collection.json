@@ -189,7 +189,7 @@
                 "status": "OK",
                 "code": 200,
                 "_postman_previewlanguage": "json",
-                "body": "{\n  \"chat_message_reply\": {\n    \"text\": \"To apply updates safely, open ILO Bot and confirm before writing changes.\"\n  },\n  \"actions\": [\n    {\n      \"action_type\": \"open_specialist_bot\",\n      \"target\": { \"context\": \"ILO\", \"context_object_id\": 456 },\n      \"payload\": {\n        \"specialist_type\": \"ilo_bot\",\n        \"intent\": \"refine_ilos\",\n        \"trigger_reason\": \"user_requested_apply_ilo_changes\",\n        \"confirm_required\": true,\n        \"button_label_zh\": \"用 ILO Bot 優化此條 ILO\",\n        \"button_label_en\": \"Refine with ILO Bot\"\n      },\n      \"ui\": { \"presentation\": \"inline\", \"highlight_target\": \"\" }\n    }\n  ]\n}\n"
+                "body": "{\n  \"chat_message_reply\": {\n    \"text\": \"To apply updates safely, open ILO Bot and confirm before writing changes.\"\n  },\n  \"actions\": [\n    {\n      \"action_type\": \"open_specialist_bot\",\n      \"target\": { \"context\": \"ILO\", \"context_object_id\": 456 },\n      \"payload\": {\n        \"specialist_type\": \"ilo_bot\",\n        \"intent\": \"refine_ilos\",\n        \"trigger_reason\": \"user_requested_apply_ilo_changes\",\n        \"confirm_required\": true,\n        \"button_label_zh\": \"生成預期學習成果建議\",\n        \"button_label_en\": \"Refine with ILO Bot\"\n      },\n      \"ui\": { \"presentation\": \"inline\", \"highlight_target\": \"\" }\n    }\n  ]\n}\n"
               }
             ]
           }

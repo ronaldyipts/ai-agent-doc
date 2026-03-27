@@ -117,7 +117,7 @@ This example is also synced into `postman/LDS-AI-Agent.postman_collection.json` 
         "intent": "refine_ilos",
         "trigger_reason": "user_requested_apply_ilo_changes",
         "confirm_required": true,
-        "button_label_zh": "用 ILO Bot 優化此條 ILO",
+        "button_label_zh": "生成預期學習成果建議",
         "button_label_en": "Refine with ILO Bot"
       },
       "ui": {
