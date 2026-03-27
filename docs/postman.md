@@ -75,14 +75,15 @@ Response format: `{ chat_message_reply: { text }, actions: [...] }`. If the coll
 
 ### Postman JSON examples (current behavior)
 
-General Bot now prefers **direct ILO suggestions** to save one button click.  
-For ILO-related requests, expect `show_suggestion` directly (instead of handoff button actions).
+General Bot currently follows **handoff/button-first** for apply/update-oriented ILO requests.  
+For these requests, expect a handoff action (`open_specialist_bot`, legacy `open_ilo_bot`) so LDS can show a button and call ILO Bot.
+This example is also synced into `postman/LDS-AI-Agent.postman_collection.json` and `static/postman/LDS-AI-Agent.postman_collection.json`.
 
 **General Bot request body** (`POST /api/general_bot`)
 
 ```json
 {
-  "message": "Please suggest 3 ILOs for this topic directly.",
+  "message": "Please help apply these ILO updates in LDS.",
   "courseInfo": {
     "topic": "Sustainable City",
     "subject": "General Studies",
@@ -97,7 +98,7 @@ For ILO-related requests, expect `show_suggestion` directly (instead of handoff 
 }
 ```
 
-**Expected response shape** (direct suggestion, no handoff button)
+**Expected response shape** (handoff button for ILO Bot)
 
 ```json
 {
@@ -106,28 +107,22 @@ For ILO-related requests, expect `show_suggestion` directly (instead of handoff 
   },
   "actions": [
     {
-      "action_type": "show_suggestion",
+      "action_type": "open_specialist_bot",
       "target": {
         "context": "ILO",
         "context_object_id": 456
       },
       "payload": {
-        "suggestions": [
-          {
-            "statement": "Explain one sustainability challenge in city life with a local example.",
-            "type_id": 1,
-            "bloom_taxonomy_level_id": 2
-          },
-          {
-            "statement": "Propose one practical school-level action that supports sustainable city development.",
-            "type_id": 2,
-            "bloom_taxonomy_level_id": 3
-          }
-        ]
+        "specialist_type": "ilo_bot",
+        "intent": "refine_ilos",
+        "trigger_reason": "user_requested_apply_ilo_changes",
+        "confirm_required": true,
+        "button_label_zh": "用 ILO Bot 優化此條 ILO",
+        "button_label_en": "Refine with ILO Bot"
       },
       "ui": {
-        "presentation": "popup",
-        "highlight_target": "#ILO.view-pattern"
+        "presentation": "inline",
+        "highlight_target": ""
       }
     }
   ]

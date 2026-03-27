@@ -165,10 +165,25 @@
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"message\": \"How do I write good learning outcomes?\",\n  \"courseInfo\": {},\n  \"referrer_pathname\": \"\",\n  \"form_state\": null\n}\n"
+              "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n"
             },
             "url": "{{base_url}}/api/general_bot",
-            "description": "LDS-compatible general conversation. Required: message, courseInfo. Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions."
+            "description": "LDS-compatible general conversation. Required: message, courseInfo. Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions. For apply/update-oriented ILO requests, expect handoff action (open_specialist_bot; legacy open_ilo_bot) so LDS can show a button and call POST /api/ilo_bot.",
+            "response": [
+              {
+                "name": "Example: General Bot handoff to ILO Bot",
+                "originalRequest": {
+                  "method": "POST",
+                  "header": [ { "key": "Content-Type", "value": "application/json" } ],
+                  "body": { "mode": "raw", "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n" },
+                  "url": "{{base_url}}/api/general_bot"
+                },
+                "status": "OK",
+                "code": 200,
+                "_postman_previewlanguage": "json",
+                "body": "{\n  \"chat_message_reply\": {\n    \"text\": \"To apply updates safely, open ILO Bot and confirm before writing changes.\"\n  },\n  \"actions\": [\n    {\n      \"action_type\": \"open_specialist_bot\",\n      \"target\": { \"context\": \"ILO\", \"context_object_id\": 456 },\n      \"payload\": {\n        \"specialist_type\": \"ilo_bot\",\n        \"intent\": \"refine_ilos\",\n        \"trigger_reason\": \"user_requested_apply_ilo_changes\",\n        \"confirm_required\": true,\n        \"button_label_zh\": \"用 ILO Bot 優化此條 ILO\",\n        \"button_label_en\": \"Refine with ILO Bot\"\n      },\n      \"ui\": { \"presentation\": \"inline\", \"highlight_target\": \"\" }\n    }\n  ]\n}\n"
+              }
+            ]
           }
         },
         {
