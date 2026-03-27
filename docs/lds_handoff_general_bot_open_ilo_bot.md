@@ -2,10 +2,10 @@
 sidebar_position: 8
 ---
 
-# Chapter 8: LDS handoff: General Bot suggests opening ILO Bot (`open_ilo_bot` action)
+# Chapter 8: LDS handoff: General Bot specialist handoff (`open_ilo_bot` and generic schema)
 
 **Status: DRAFT (proposal)**  
-**Goal:** When a user in **General Bot** expresses intent related to **ILOs (Intended Learning Outcomes)**, the backend may include an **`open_ilo_bot`** entry in the `actions` array so **LDS UI** can show a button (or equivalent). After the user confirms, LDS calls **`POST /api/ilo_bot`**.
+**Goal:** Define a consistent handoff pattern from **General Bot** to a specialist bot. For ILO-related intent, backend can emit a handoff action in `actions`; LDS UI renders the trigger (button or equivalent), then LDS calls the mapped specialist API (for ILO, **`POST /api/ilo_bot`**).
 
 > **Important:** At the time of writing, the **Agent backend may not yet emit this action in production**. This document fixes the **JSON contract** and **division of work** so LDS can design UI and flows in parallel. Backend delivery can be scheduled separately (e.g. feature flag plus rules or model output).
 
@@ -22,16 +22,63 @@ sidebar_position: 8
 
 ---
 
-## 2. JSON contract (`open_ilo_bot`)
+## 2. Decision rule (`show_suggestion` vs handoff)
 
-### 2.1 Placement in `POST /api/general_bot` responses
+To reduce unnecessary clicks, use this rule before deciding action output.
+
+| User intent in General Bot | Preferred behavior | Why |
+|-------|------|------|
+| User asks to **see suggestions only** (no explicit apply/update intent) | Return normal text plus **`show_suggestion`** when suggestions are ready; no handoff button required | Lowest-friction UX; user gets immediate draft content |
+| User asks to **generate and apply/update LDS items** (writeback-oriented) | Return handoff action (ILO today: `open_ilo_bot`) so LDS can ask for confirmation and then call specialist API | Write/update flow needs explicit LDS-side confirmation |
+| Intent is ambiguous | Ask one short clarifying question in chat, then follow one of the two paths above | Avoid wrong tool jump or accidental write flow |
+
+Notes:
+- If model confidence is low, prefer the safer `show_suggestion` path first.
+- LDS should continue to ignore unknown `action_type` values for forward compatibility.
+
+---
+
+## 3. JSON contract (generic + ILO compatibility)
+
+### 3.1 Placement in `POST /api/general_bot` responses
 
 Same overall shape as the existing LDS External AI Agent:
 
 - Top level: `chat_message_reply.text` (normal reply text; may explain that the user can open ILO Bot below).
-- Top level: `actions` (array; **multiple** entries allowed; `open_ilo_bot` may coexist with others; LDS decides priority).
+- Top level: `actions` (array; **multiple** entries allowed; handoff action may coexist with others; LDS decides priority).
 
-### 2.2 Single action fields
+### 3.2 Action shape: generic handoff
+
+Recommended new generic action:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `action_type` | string | Yes | **`"open_specialist_bot"`** (recommended generic name) |
+| `target` | object | No | Specialist context object; same semantics as today (`context`, `context_object_id`) |
+| `payload` | object | Yes | See table below |
+| `ui` | object | No | `presentation`: `inline` \| `sidebar` \| `popup` (suggest **`inline`**) |
+
+#### Suggested `payload` fields (generic)
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `specialist_type` | string | Yes | Target specialist, e.g. `ilo_bot`, `mc_bot` |
+| `intent` | string | Yes | Machine-readable intent, e.g. `generate_ilos`, `refine_ilos`, `generate_mc_items` |
+| `trigger_reason` | string | No | For LDS logging / analytics (e.g. `user_asked_generate_ilo`) |
+| `confirm_required` | boolean | No | Whether LDS should request explicit user confirmation before API call (default recommended: `true` for write/update) |
+| `button_label_zh` | string | No | Default Traditional Chinese label; LDS may override with i18n key |
+| `button_label_en` | string | No | Default English label |
+
+#### API routing recommendation
+
+| `payload.specialist_type` | LDS calls |
+|-------|------|
+| `ilo_bot` | `POST /api/ilo_bot` |
+| `mc_bot` | `POST /api/mc_bot` (or project-approved MC endpoint) |
+
+### 3.3 Backward compatibility (`open_ilo_bot`)
+
+To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may keep emitting:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -40,7 +87,9 @@ Same overall shape as the existing LDS External AI Agent:
 | `payload` | object | Yes | See table below |
 | `ui` | object | No | `presentation`: `inline` \| `sidebar` \| `popup` (suggest **`inline`** under the message); `highlight_target` optional |
 
-#### Suggested `payload` fields
+`open_ilo_bot` can be interpreted as a specialization of `open_specialist_bot` with fixed `specialist_type = "ilo_bot"`.
+
+#### Suggested `payload` fields (legacy-compatible)
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -51,9 +100,9 @@ Same overall shape as the existing LDS External AI Agent:
 
 ---
 
-## 3. Example JSON
+## 4. Example JSON
 
-### Example A: User wants to generate ILOs (`open_ilo_bot` only)
+### Example A: User wants to generate/apply ILOs (generic handoff)
 
 ```json
 {
@@ -62,14 +111,16 @@ Same overall shape as the existing LDS External AI Agent:
   },
   "actions": [
     {
-      "action_type": "open_ilo_bot",
+      "action_type": "open_specialist_bot",
       "target": {
         "context": "ILO",
         "context_object_id": 0
       },
       "payload": {
+        "specialist_type": "ilo_bot",
         "intent": "generate_ilos",
         "trigger_reason": "user_asked_generate_ilo",
+        "confirm_required": true,
         "button_label_zh": "開啟 ILO Bot",
         "button_label_en": "Open ILO Bot"
       },
@@ -82,7 +133,7 @@ Same overall shape as the existing LDS External AI Agent:
 }
 ```
 
-### Example B: Same response with another action (illustrative)
+### Example B: Backward-compatible ILO action (`open_ilo_bot`)
 
 ```json
 {
@@ -105,7 +156,32 @@ Same overall shape as the existing LDS External AI Agent:
 }
 ```
 
-### Example C: Empty `actions` (still common today)
+### Example C: MC handoff using generic action
+
+```json
+{
+  "chat_message_reply": {
+    "text": "I can route you to MC Bot to draft question items aligned with your current unit outcomes."
+  },
+  "actions": [
+    {
+      "action_type": "open_specialist_bot",
+      "target": { "context": "MC", "context_object_id": 0 },
+      "payload": {
+        "specialist_type": "mc_bot",
+        "intent": "generate_mc_items",
+        "trigger_reason": "user_asked_generate_mc",
+        "confirm_required": true,
+        "button_label_zh": "開啟 MC Bot",
+        "button_label_en": "Open MC Bot"
+      },
+      "ui": { "presentation": "inline", "highlight_target": "" }
+    }
+  ]
+}
+```
+
+### Example D: Empty `actions` (still common today)
 
 ```json
 {
@@ -118,29 +194,30 @@ Same overall shape as the existing LDS External AI Agent:
 
 ---
 
-## 4. After the user clicks: call `ilo_bot`
+## 5. After the user clicks: call specialist API
 
-- **Method / path:** `POST /api/ilo_bot` (same as existing docs).
+- **Method / path:** route by `specialist_type` (ILO today: `POST /api/ilo_bot`).
 - **Header:** same **Bearer access token** as for `general_bot`.
 - **Body:** align with the latest **general_bot** request where possible, at least:
   - `courseInfo` (required)
   - Optional: `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
   - Optional: `referrer_pathname`, `form_state`
-- **Response:** reuse the existing **`show_suggestion`** ILO list structure; LDS can reuse current ILO form integration.
+- **Response:** reuse existing specialist response structures (ILO: current `show_suggestion` list shape).
 
 ---
 
-## 5. Relationship to public specifications
+## 6. Relationship to public specifications
 
 - Overall message shape should stay aligned with **[LDS External AI Agent — overall JSON structure](https://hkucite.github.io/lds-external-ai-agent/docs/overall-json-structure)**.
-- **`open_ilo_bot`** is a **proposed new `action_type`** for this project; if HKU CITE central specs use different names or fields, revise this doc and OpenAPI after alignment.
+- `open_specialist_bot` (generic) and `open_ilo_bot` (compatibility alias) are project-level proposals; if HKU CITE central specs use different names/fields, revise this doc and OpenAPI after alignment.
 
 ---
 
-## 6. Revision history
+## 7. Revision history
 
 | Date | Change |
 |------|--------|
 | 2026-03-25 | First draft: contract, examples, responsibilities (documentation only; backend emission tracked separately) |
 | 2026-03-25 | Copied into ai-agent docs site (keep in sync with LDS-Chatbot repo) |
 | 2026-03-25 | Narrative translated to English; sample `button_label_zh` values retained as optional i18n examples |
+| 2026-03-27 | Added decision rule (`show_suggestion` vs handoff); introduced generic `open_specialist_bot` schema; retained `open_ilo_bot` compatibility and added MC example |

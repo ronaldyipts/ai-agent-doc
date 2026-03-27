@@ -53,6 +53,67 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 
 Response format: `{ chat_message_reply: { text }, actions: [...] }`. If the collection does not yet include these two requests, add them manually; see [Chapter 6: Main System Integration](./main_system_integration.md).
 
+### Postman JSON examples (current behavior)
+
+General Bot now prefers **direct ILO suggestions** to save one button click.  
+For ILO-related requests, expect `show_suggestion` directly (instead of handoff button actions).
+
+**General Bot request body** (`POST /api/general_bot`)
+
+```json
+{
+  "message": "Please suggest 3 ILOs for this topic directly.",
+  "courseInfo": {
+    "topic": "Sustainable City",
+    "subject": "General Studies",
+    "grade": "Primary 5"
+  },
+  "referrer_pathname": "/designstudio/123/intended-learning-outcome/456/edit/",
+  "form_state": {
+    "statement": "",
+    "type_id": 0,
+    "bloom_taxonomy_level_id": 0
+  }
+}
+```
+
+**Expected response shape** (direct suggestion, no handoff button)
+
+```json
+{
+  "chat_message_reply": {
+    "text": "Here are suggested ILOs based on your course context."
+  },
+  "actions": [
+    {
+      "action_type": "show_suggestion",
+      "target": {
+        "context": "ILO",
+        "context_object_id": 456
+      },
+      "payload": {
+        "suggestions": [
+          {
+            "statement": "Explain one sustainability challenge in city life with a local example.",
+            "type_id": 1,
+            "bloom_taxonomy_level_id": 2
+          },
+          {
+            "statement": "Propose one practical school-level action that supports sustainable city development.",
+            "type_id": 2,
+            "bloom_taxonomy_level_id": 3
+          }
+        ]
+      },
+      "ui": {
+        "presentation": "popup",
+        "highlight_target": "#ILO.view-pattern"
+      }
+    }
+  ]
+}
+```
+
 ## Collection variables
 
 Edit the collection → **Variables** tab. No separate environment file needed.
