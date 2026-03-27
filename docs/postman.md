@@ -36,6 +36,26 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 |------|--------|
 | [**LDS-AI-Agent.postman_collection.json**](https://ronaldyipts.github.io/ai-agent-doc/postman/LDS-AI-Agent.postman_collection.json) | All API requests (Auth, System, Core) and built-in variables. **1. Retrieve Access Token** sends **x-www-form-urlencoded** body: `username`, `password`. Click the link to download, then Import in Postman. |
 
+### Collection split (important)
+
+- **LDS options/patterns testing** should use the official LDS collection:  
+  [**LDS-Rest-API-for-Chatbot.postman_collection.json**](https://hkucite.github.io/lds-external-ai-agent/lds/LDS-Rest-API-for-Chatbot.postman_collection.json)
+- **AI Agent endpoint testing** should continue using this project collection (`LDS-AI-Agent.postman_collection.json`), especially for:
+  - `POST /api/general_bot`
+  - `POST /api/ilo_bot`
+
+#### LDS `options/aggregate` sample body
+
+```json
+{
+  "requests": [
+    { "path": "/courses/grade-levels-simplified", "params": {} },
+    { "path": "/learning-tasks/types-simplified", "params": {} },
+    { "path": "/intended-learning-outcomes/bloom-taxonomy-verbs-simplified", "params": {} }
+  ]
+}
+```
+
 **Maintainers:** The download link serves the file from **`static/postman/LDS-AI-Agent.postman_collection.json`**. After editing the source collection in **`postman/LDS-AI-Agent.postman_collection.json`**, copy it to **`static/postman/`** before building/deploying so the public link serves the latest version.
 
 ## Collection structure
