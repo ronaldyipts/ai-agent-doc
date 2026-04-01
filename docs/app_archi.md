@@ -69,7 +69,7 @@ API Endpoints
   - POST /api/auth/logout - Logout
 - LDS-compatible (2) — recommended for main system integration
   - POST /api/general_bot - General conversation; body includes courseInfo, optional referrer_pathname, form_state, and learning-design arrays
-  - POST /api/ilo_bot - Generate ILO suggestions; body includes courseInfo, optional referrer_pathname, form_state, and learning-design arrays
+  - POST /api/ilo_bot - Generate ILO suggestions; body includes courseInfo, optional referrer_pathname, form_state, learning-design arrays, optional request_type (initial/reload) and reload_metadata.original_suggestions on reload
 - Core Features (6)
   - POST /api/chat - General chat interface
   - POST /api/generate_ilos - Generate Intended Learning Outcomes

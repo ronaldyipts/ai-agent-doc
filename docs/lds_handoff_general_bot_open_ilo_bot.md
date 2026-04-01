@@ -202,6 +202,8 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
   - `courseInfo` (required)
   - Optional: `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
   - Optional: `referrer_pathname`, `form_state`
+  - Optional: `request_type` — `initial` (default) or `reload` when the user asks for a new batch of suggestions
+  - Optional: `reload_metadata.original_suggestions` — when `request_type` is `reload`, pass the **last three** suggestions previously shown (same shape as response items: `statement`, `type_id`, `bloom_taxonomy_level_id`) so the Agent can steer toward different wording. CamelCase variants (`requestType`, `reloadMetadata`, `originalSuggestions`, etc.) are accepted by the Agent.
 - **Response:** reuse existing specialist response structures (ILO: current `show_suggestion` list shape).
 
 ---
@@ -221,3 +223,4 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
 | 2026-03-25 | Copied into ai-agent docs site (keep in sync with LDS-Chatbot repo) |
 | 2026-03-25 | Narrative translated to English; sample `button_label_zh` values retained as optional i18n examples |
 | 2026-03-27 | Added decision rule (`show_suggestion` vs handoff); introduced generic `open_specialist_bot` schema; retained `open_ilo_bot` compatibility and added MC example |
+| 2026-03-30 | Documented `request_type` / `reload_metadata` on `POST /api/ilo_bot` for reload flows (see LDS-Chatbot `docs/openapi.json` → `ilo_request`) |

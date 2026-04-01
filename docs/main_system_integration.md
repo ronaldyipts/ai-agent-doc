@@ -29,7 +29,7 @@ The Agent **may** (once implemented) return an action with **`action_type: "open
 
 - **Purpose**: Get AI-suggested Intended Learning Outcomes (e.g. when the user clicks “AI suggest ILO”).
 - **Required**: `courseInfo`
-- **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
+- **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`, `request_type` (`initial` \| `reload`, default `initial`), `reload_metadata` (for `reload`: include `original_suggestions` with the last three UI suggestions so the model diversifies). Snake_case or camelCase accepted.
 - **Response**:
   - Top level: `{ chat_message_reply: { text }, actions: [ ... ] }`
   - For each `show_suggestion` action, `payload.suggestions[]` items include:
@@ -44,7 +44,7 @@ LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO catego
 #### Button-triggered “AI suggest ILO” flow (main system → sub-system)
 
 1. **Main system UI**: Add a button (e.g. “AI suggest ILO”) on the course/unit edit page.
-2. **On click**: The main system calls **POST** `{sub-system base URL}/api/ilo_bot` with an access token; body includes `courseInfo` (and optionally `form_state`, `referrer_pathname`).
+2. **On click**: The main system calls **POST** `{sub-system base URL}/api/ilo_bot` with an access token; body includes `courseInfo` (and optionally `form_state`, `referrer_pathname`). For a **Reload** action, set `request_type` to `reload` and pass the previous three suggestions in `reload_metadata.original_suggestions`.
 3. **Sub-system**: Returns ILO suggestions (`chat_message_reply` + `actions`).
 4. **Main system**: Displays the response in a modal, sidebar, or form for the teacher to select or edit, then save.
 

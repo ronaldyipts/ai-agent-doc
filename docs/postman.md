@@ -62,16 +62,16 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 
 - **0 - Auth**: **1. Retrieve Access Token** (form body: `username`, `password` → saves token), OAuth2 code exchange, Refresh Token, Me, Logout. **No public registration**; accounts are created by an admin (POST /api/auth/users).
 - **1 - System**: Health check (root and `/api/health`).
-- **2 - Core**: **General Bot**, **ILO Bot** (recommended for LDS; body: `message`/`courseInfo`, optional `referrer_pathname`, `form_state`), Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
+- **2 - Core**: **General Bot**, **ILO Bot** (initial), **ILO Bot — reload** (same endpoint with `request_type` + `reload_metadata`), Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
 
 ### LDS-dedicated endpoints (General Bot / ILO Bot)
 
 | Request | Endpoint | Required body | Optional body |
 |---------|----------|---------------|---------------|
 | **General Bot** | POST `/api/general_bot` | `message`, `courseInfo` | `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons` |
-| **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, same learning-design arrays as above |
+| **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, same learning-design arrays as above; optional `request_type` (`initial` \| `reload`); for `reload`, optional `reload_metadata.original_suggestions` (array of last 3 suggestions: `statement`, `type_id`, `bloom_taxonomy_level_id`). CamelCase aliases supported. |
 
-Response format: `{ chat_message_reply: { text }, actions: [...] }`. If the collection does not yet include these two requests, add them manually; see [Chapter 6: Main System Integration](./main_system_integration.md).
+Response format: `{ chat_message_reply: { text }, actions: [...] }`. The collection includes **ILO Bot — reload** for the `request_type` + `reload_metadata` contract; canonical field definitions live in **LDS-Chatbot** `docs/openapi.json` (`ilo_request`). See [Chapter 6: Main System Integration](./main_system_integration.md).
 
 ### Postman JSON examples (current behavior)
 

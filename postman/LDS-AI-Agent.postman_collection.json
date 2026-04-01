@@ -7,21 +7,58 @@
   "auth": {
     "type": "bearer",
     "bearer": [
-      { "key": "token", "value": "{{access_token}}", "type": "string" }
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
     ]
   },
   "variable": [
-    { "key": "base_url", "value": "http://ronald-test.cite.hku.hk" },
-    { "key": "username", "value": "" },
-    { "key": "password", "value": "" },
-    { "key": "client_id", "value": "" },
-    { "key": "client_secret", "value": "" },
-    { "key": "access_token", "value": "" },
-    { "key": "refresh_token", "value": "" },
-    { "key": "conversation_id", "value": "" },
-    { "key": "auth_code", "value": "" },
-    { "key": "redirect_uri", "value": "http://localhost:5173/callback" },
-    { "key": "scope", "value": "chatbot" }
+    {
+      "key": "base_url",
+      "value": "http://ronald-test.cite.hku.hk"
+    },
+    {
+      "key": "username",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "client_id",
+      "value": ""
+    },
+    {
+      "key": "client_secret",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "conversation_id",
+      "value": ""
+    },
+    {
+      "key": "auth_code",
+      "value": ""
+    },
+    {
+      "key": "redirect_uri",
+      "value": "http://localhost:5173/callback"
+    },
+    {
+      "key": "scope",
+      "value": "chatbot"
+    }
   ],
   "item": [
     {
@@ -46,14 +83,29 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "username", "value": "{{username}}", "type": "text" },
-                { "key": "password", "value": "{{password}}", "type": "text" }
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{base_url}}/api/auth/token",
@@ -63,20 +115,59 @@
         {
           "name": "Get JWT Token (OAuth2 authorization code)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "grant_type", "value": "authorization_code", "type": "text" },
-                { "key": "code", "value": "{{auth_code}}", "type": "text" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}", "type": "text" },
-                { "key": "client_id", "value": "{{client_id}}", "type": "text" },
-                { "key": "client_secret", "value": "{{client_secret}}", "type": "text" },
-                { "key": "scope", "value": "{{scope}}", "type": "text" },
-                { "key": "username", "value": "{{username}}", "type": "text" },
-                { "key": "password", "value": "{{password}}", "type": "text" }
+                {
+                  "key": "grant_type",
+                  "value": "authorization_code",
+                  "type": "text"
+                },
+                {
+                  "key": "code",
+                  "value": "{{auth_code}}",
+                  "type": "text"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "{{client_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "{{scope}}",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{base_url}}/api/auth/token",
@@ -100,13 +191,24 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "refresh_token", "value": "{{refresh_token}}", "type": "text" }
+                {
+                  "key": "refresh_token",
+                  "value": "{{refresh_token}}",
+                  "type": "text"
+                }
               ]
             },
             "url": "{{base_url}}/api/auth/refresh",
@@ -137,7 +239,9 @@
         {
           "name": "Health Check (Root)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": "{{base_url}}/",
             "description": "Simple health check."
@@ -146,7 +250,9 @@
         {
           "name": "Health Check (API)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "url": "{{base_url}}/api/health",
             "description": "Detailed API health check."
@@ -170,7 +276,12 @@
           "name": "General Bot (LDS)",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n"
@@ -182,8 +293,16 @@
                 "name": "Example: General Bot handoff to ILO Bot",
                 "originalRequest": {
                   "method": "POST",
-                  "header": [ { "key": "Content-Type", "value": "application/json" } ],
-                  "body": { "mode": "raw", "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n" },
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n"
+                  },
                   "url": "{{base_url}}/api/general_bot"
                 },
                 "status": "OK",
@@ -198,20 +317,33 @@
           "name": "ILO Bot (LDS)",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null\n}\n"
+              "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [\n      4,\n      5\n    ]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"request_type\": \"initial\"\n}\n"
             },
             "url": "{{base_url}}/api/ilo_bot",
-            "description": "LDS-compatible ILO suggestions. Required: courseInfo (include topic, grade_level_id, subjects for context; IDs are resolved via LDS options). Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Returns: chat_message_reply, actions with show_suggestion. Each suggestion includes: statement (required), type_id (ILO category, required), bloom_taxonomy_level_id (required), action_verb (optional). The agent always fetches bloom_taxonomy_levels and ilo_types so these IDs can be returned.",
+            "description": "LDS-compatible ILO suggestions. Required: courseInfo. Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. Optional request_type: initial (default) | reload. On reload, send reload_metadata.original_suggestions with the last 3 suggestions so the model can diversify. CamelCase aliases supported (requestType, reloadMetadata, originalSuggestions, typeId, bloomTaxonomyLevelId). Returns exactly 3 suggestions in show_suggestion.payload.suggestions (statement, type_id, bloom_taxonomy_level_id).",
             "response": [
               {
                 "name": "Example: ILO response with category and Bloom level",
                 "originalRequest": {
                   "method": "POST",
-                  "header": [ { "key": "Content-Type", "value": "application/json" } ],
-                  "body": { "mode": "raw", "raw": "{\n  \"courseInfo\": { \"topic\": \"Engineering Design\", \"grade_level_id\": 5, \"subjects\": [4, 5] },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null\n}\n" },
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [\n      4,\n      5\n    ]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"request_type\": \"initial\"\n}\n"
+                  },
                   "url": "{{base_url}}/api/ilo_bot"
                 },
                 "status": "OK",
@@ -223,10 +355,33 @@
           }
         },
         {
+          "name": "ILO Bot — reload (LDS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"request_type\": \"reload\",\n  \"reload_metadata\": {\n    \"original_suggestions\": [\n      { \"statement\": \"Describe the main steps of the engineering design process.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2 },\n      { \"statement\": \"Explain the purpose of each stage in the engineering design cycle.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2 },\n      { \"statement\": \"Summarize how inquiry skills are applied during engineering design.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2 }\n    ]\n  }\n}\n"
+            },
+            "url": "{{base_url}}/api/ilo_bot",
+            "description": "Same as ILO Bot (LDS) but request_type=reload. Pass the last 3 suggestions from the previous response in reload_metadata.original_suggestions so the Agent steers toward new wording. If omitted, behavior falls back to a normal generation."
+          }
+        },
+        {
           "name": "Chat",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"message\": \"How do I write good learning outcomes?\",\n  \"conversation_id\": \"\"\n}\n"
@@ -239,7 +394,12 @@
           "name": "Generate ILOs",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"topic\": \"Introduction to Python\",\n  \"level\": \"undergraduate\",\n  \"language\": \"en_US\"\n}\n"
@@ -252,7 +412,12 @@
           "name": "Suggest Disciplinary Practices",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"topic\": \"Data Science\",\n  \"context\": \"First year course\"\n}\n"
@@ -269,7 +434,11 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
               ]
             },
             "url": "{{base_url}}/api/analyze-document",
@@ -284,7 +453,11 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "file", "type": "file", "src": "" }
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
               ]
             },
             "url": "{{base_url}}/api/extract-course-info",
@@ -295,7 +468,12 @@
           "name": "Save Conversation",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"conversation_id\": \"{{conversation_id}}\",\n  \"messages\": []\n}\n"
