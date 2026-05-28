@@ -18,7 +18,7 @@ sidebar_position: 8
 | Owner | Work |
 |--------|------|
 | **Agent / Chatbot backend** | Under agreed conditions, include **`action_type: "open_ilo_bot"`** in `actions` on **`POST /api/general_bot`** responses (with `payload` as below); keep **`POST /api/ilo_bot`** stable; provide test environment and examples after rollout. |
-| **LDS (frontend / product)** | Parse `actions`; detect `open_ilo_bot`; render a button (labels from `payload` or your own i18n); on click, build the **`ilo_bot` request** aligned with the last **general_bot** call (`courseInfo`, `referrer_pathname`, `form_state`, etc.); call **`POST /api/ilo_bot`** and handle loading, errors, and tokens. |
+| **LDS client application** | Parse `actions`; detect `open_ilo_bot`; render a trigger in LDS UI (labels from `payload` or your own i18n); on click, build the **`ilo_bot` request** aligned with the last **general_bot** call (`courseInfo`, `referrer_pathname`, `form_state`, etc.); call **`POST /api/ilo_bot`** and handle loading, errors, and tokens. |
 
 ---
 

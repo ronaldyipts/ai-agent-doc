@@ -2,76 +2,39 @@
 sidebar_position: 3
 ---
 
-# Chapter 3: Login Page
+# Chapter 3: Access Control and Attack Surface
 
-This chapter describes the **main application (LDS Chatbot)** login page. The main app uses **POST /api/auth/login** (form: username, password). The **Admin Portal** uses **POST /api/auth/token** (form body: username, password) and has **no public registration**; accounts are created by an administrator via **POST /api/auth/users**. See [Chapter 2: Application Architecture](./app_archi.md) for Admin Portal details.
+This chapter defines security posture for the External Agent deployment.
 
-## 3.1 Overview
-- Entry point for **LDS Chatbot** (main application) user authentication.
-- Supports Traditional Chinese and English.
+## 3.1 Positioning
 
-## 3.2 Features
+- The External Agent is a **REST API Server**, not a frontend product.
+- Do not present this service as having a public login page.
+- Keep the public surface focused on API endpoints only.
 
-### 3.2.1 User Authentication
-- Username and password login
-- Form validation (required fields)
-- Loading state indicator
-- Error message display
-- Auto-redirect to chatbot page on success
+## 3.2 Why avoid login pages here
 
-### 3.2.2 Branding
-- Displays IDEALS Logo
-- Displays Learning Design Studio Logo
-- Shows a Chatbot badge
+- A web login page introduces extra attack surface (UI routes, session/cookie flows, brute-force vectors, form attacks).
+- For this integration, LDS is the caller and UI host; this Agent should remain API-first.
 
-### 3.2.3 Navigation Links
-- Forgot Password: Navigate to password reset page (still under development)
-- Sign Up: Shown only if the main application provides a registration entry (navigate to registration page). **The Admin Portal has no public registration**; accounts are created by an administrator.
-- Responsive design
+## 3.3 Recommended protection for admin access
 
-## 3.3 Technical Details
+If a minimal operations/admin entry is necessary:
 
-### 3.3.1 Frontend
-- Component: `src/components/Login.jsx`
-- Framework: React (Functional Component)
-- State Management: React Hooks (useState)
-- Endpoint: POST /api/auth/login
-- Authentication: Form Data (username, password)
-- Response: JSON with access_token, refresh_token, and user object
-- Tokens stored in localStorage (access_token, refresh_token)
-- User info stored in localStorage (user)
-- Language preference stored in localStorage (app_language)
+- Prefer server-level gate first (for example, **`.htaccess` prompt password** or equivalent reverse-proxy authentication).
+- Do not expose admin functions without a protection layer.
+- Keep admin APIs private/network-restricted whenever possible.
 
-Flow
-1. User enters username and password
-2. Clicks "Login" button
-3. System sends POST request to /api/auth/login
-4. Backend validates credentials
-5. On success, returns JWT tokens and user info
-6. Frontend stores tokens in localStorage
-7. Updates authentication state and redirects to chatbot page
+## 3.4 API authentication (runtime)
 
-### 3.3.2 Backend API
-- Password hashing with bcrypt
-- JWT token authentication
-- Token expiration: 30 minutes for access token
-- Generic error messages (security best practice)
-- HTTPS recommended for production
+- Runtime API calls (for LDS integration) use Bearer token authentication.
+- Main integration endpoints remain:
+  - `POST /api/general_bot`
+  - `POST /api/ilo_bot`
+- See [Chapter 6: Main System Integration](./main_system_integration.md) for the API contract.
 
-### 3.3.3 Data Storage (Under Development)
-- Database: SQLite (default) or PostgreSQL
-- User table with: username, hashed_password, is_active fields
-- JWT configuration: JWT_SECRET_KEY required
+## 3.5 Summary
 
-## 3.4 User Flow
-See 3.3.1 Flow.
-
-## 3.5 Security Features
-- bcrypt password hashing
-- JWT authentication
-- Generic error messaging
-- HTTPS recommended
-
-## 3.6 Backend Requirements
-- SQLite (default) or PostgreSQL
-- JWT_SECRET_KEY configured
+- Treat External Agent as API-only.
+- Avoid public login pages on this service.
+- If admin access is required, gate it at server edge (e.g. `.htaccess` prompt password) and keep admin routes tightly controlled.

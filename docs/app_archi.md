@@ -91,30 +91,14 @@ See Chapter 4 for chatbot logic details.
 6. Agent returns LDS-compatible JSON (`chat_message_reply` + `actions`).
 7. LDS renders the response in its own UI.
 
-## 2.3 Admin Portal Architecture
+## 2.3 Optional Admin Operations API (non-runtime)
 
-### 2.3.1 Frontend Architecture
-Tech Stack
-- React 18.3.1
-- Vite 5.4.8
-- Axios (HTTP Client)
+Security positioning:
+- The External Agent should be treated as an API-only service.
+- Avoid exposing additional public login pages because they increase attack surface.
+- If a minimal admin access gate is required at server edge, prefer basic server-side protection (e.g. **`.htaccess` prompt password** or equivalent reverse-proxy auth) before exposing any admin route.
 
-Directory Structure
-```
-admin_portal/frontend/
-├── src/
-│   ├── App.jsx
-│   ├── components/
-│   │   ├── Login.jsx        # Login only (no Sign Up / Register)
-│   │   ├── ClientList.jsx   # Client List
-│   │   ├── ClientForm.jsx   # Client Registration Form
-│   │   └── ClientDetails.jsx# Client Details
-│   └── styles.css
-```
-
-Admin Portal login page provides **login only**; there is **no** “Sign Up / Register” link and **no** default admin credentials. New users must be created by an existing admin via **POST /api/auth/users** (or a future “User Management” page in the Admin Portal).
-
-### 2.3.2 Backend Architecture
+### 2.3.1 Backend Architecture
 Tech Stack
 - FastAPI
 - SQLAlchemy (ORM)
@@ -127,22 +111,8 @@ Database Models
 - AuthorizationCode - Auth Codes
 - AccessToken - Access Tokens
 
-Directory Structure
-```
-admin_portal/backend/
-├── app/
-│   ├── main.py       # FastAPI App
-│   ├── models.py     # Database Models
-│   ├── database.py   # Database Connection
-│   ├── config.py     # Configuration
-│   ├── auth.py       # Auth Utilities
-│   └── routes/
-│       ├── auth.py       # Auth Routes
-│       ├── clients.py    # Client Management
-│       ├── token.py      # OAuth2 Token Endpoint
-│       └── authorize.py  # OAuth2 Authorization Endpoint
-└── run.py
-```
+Directory Structure (admin backend only)
+`admin_portal/backend/` contains auth and client-management APIs for operational maintenance.
 
 API Endpoints
 - /api/auth/token - Login (form body: username, password)

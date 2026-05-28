@@ -31,9 +31,49 @@ When integrating with the LDS main system, **use these two LDS-compatible endpoi
 - **Purpose**: General learning-design conversation, guidance, and suggestions.
 - **Required**: `message`, `courseInfo`
 - **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
-- **Response**: `{ chat_message_reply: { text }, actions: [...] }`
+- **Response mode**:
+  - **Sync mode** (`BOT_RESPONSE_MODE=sync`, default): `200` with `{ chat_message_reply, actions }`
+  - **Async mode** (`BOT_RESPONSE_MODE=async`): `202` with `{ job_id, status, check_url }`, then poll `GET /api/jobs/{job_id}`
 
 When LDS triggers the request from a form page (e.g. Course Information, ILO edit page), it can send **`form_state`**. The Agent uses it to build context; IDs can be resolved to human-readable names via LDS options lookup when needed.
+
+#### Async Contract (current production)
+
+When async mode is enabled:
+
+1. LDS calls `POST /api/general_bot` as usual.
+2. API returns `202 Accepted` with:
+   - `job_id` (string)
+   - `status` (`pending`)
+   - `check_url` (for example: `/api/jobs/<job_id>`)
+3. LDS polls `GET /api/jobs/{job_id}` with the same Bearer token.
+4. Job status handling:
+   - `pending` / `running` → keep loading
+   - `completed` → read `result` and render normally (`chat_message_reply`, `actions`)
+   - `failed` → read `error` and show retry UI
+
+`GET /api/jobs/{job_id}` response shape:
+
+```json
+{
+  "job_id": "f79051035cc3468ab2393417e3e7c5e0",
+  "status": "completed",
+  "endpoint": "/api/general_bot",
+  "result": {
+    "chat_message_reply": { "text": "..." },
+    "actions": []
+  },
+  "error": null
+}
+```
+
+#### LDS Integration Changes Required (after async switch)
+
+- Update `POST /api/general_bot` handling to accept both `200` and `202`.
+- Add polling flow to `GET /api/jobs/{job_id}`.
+- Keep request body and Bearer auth unchanged.
+- Keep rendering logic unchanged once `result` is received.
+- Keep `POST /api/ilo_bot` as synchronous (no polling required for ILO today).
 
 #### DRAFT: `open_ilo_bot` action (General Bot → ILO Bot)
 
@@ -105,8 +145,11 @@ Lower threshold = stricter semantic dedup (more rewrites).
 
 - Caller can reach:
   - `POST /api/general_bot`
+  - `GET /api/jobs/{job_id}` (async mode)
   - `POST /api/ilo_bot`
   - `GET /docs`
+- In async mode, `POST /api/general_bot` returns 202 with `job_id` and `check_url`.
+- `GET /api/jobs/{job_id}` reaches `completed` and returns `result.chat_message_reply` + `result.actions`.
 - `POST /api/ilo_bot` returns 200 and includes `actions[].payload.suggestions[3]`.
 - `statement` does not include `(Level:..., Type:...)`.
 - Reload request with `original_suggestions` returns a diversified batch (verb/type/semantic differences).

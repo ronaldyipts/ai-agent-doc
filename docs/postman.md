@@ -75,8 +75,8 @@ Response format: `{ chat_message_reply: { text }, actions: [...] }`. The collect
 
 ### Postman JSON examples (current behavior)
 
-General Bot currently follows **handoff/button-first** for apply/update-oriented ILO requests.  
-For these requests, expect a handoff action (`open_specialist_bot`, legacy `open_ilo_bot`) so LDS can show a button and call ILO Bot.
+General Bot currently follows a **handoff-first** pattern for apply/update-oriented ILO requests.  
+For these requests, expect a handoff action (`open_specialist_bot`, legacy `open_ilo_bot`) so the **LDS client app** can trigger ILO Bot.
 This example is also synced into `postman/LDS-AI-Agent.postman_collection.json` and `static/postman/LDS-AI-Agent.postman_collection.json`.
 
 **General Bot request body** (`POST /api/general_bot`)
@@ -98,7 +98,7 @@ This example is also synced into `postman/LDS-AI-Agent.postman_collection.json` 
 }
 ```
 
-**Expected response shape** (handoff button for ILO Bot)
+**Expected response shape** (handoff action for ILO Bot)
 
 ```json
 {
