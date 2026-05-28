@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Chapter 2: Application Architecture | LDS External AI Agent Documentation</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://ronaldyipts.github.io/ai-agent-doc/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://ronaldyipts.github.io/ai-agent-doc/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://ronaldyipts.github.io/ai-agent-doc/docs/app_archi"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Chapter 2: Application Architecture | LDS External AI Agent Documentation"><meta data-rh="true" name="description" content="2.1 Overall Architecture Pattern"><meta data-rh="true" property="og:description" content="2.1 Overall Architecture Pattern"><link data-rh="true" rel="icon" href="/ai-agent-doc/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://ronaldyipts.github.io/ai-agent-doc/docs/app_archi"><link data-rh="true" rel="alternate" href="https://ronaldyipts.github.io/ai-agent-doc/docs/app_archi" hreflang="en"><link data-rh="true" rel="alternate" href="https://ronaldyipts.github.io/ai-agent-doc/docs/app_archi" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Chapter 2: Application Architecture","item":"https://ronaldyipts.github.io/ai-agent-doc/docs/app_archi"}]}</script><link rel="alternate" type="application/rss+xml" href="/ai-agent-doc/blog/rss.xml" title="LDS External AI Agent Documentation RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/ai-agent-doc/blog/atom.xml" title="LDS External AI Agent Documentation Atom Feed"><link rel="stylesheet" href="/ai-agent-doc/assets/css/styles.761b036b.css">
-<script src="/ai-agent-doc/assets/js/runtime~main.c8e1da12.js" defer="defer"></script>
+<script src="/ai-agent-doc/assets/js/runtime~main.29a05dc5.js" defer="defer"></script>
 <script src="/ai-agent-doc/assets/js/main.bdee266d.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -32,45 +32,15 @@
 </ul>
 <p>Directory Structure</p>
 <div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">├── main.py          # FastAPI Main Application</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">├── api/</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">│   ├── utils.py     # Utility functions</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">│   └── auth.py      # Authentication module</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">├── run.py           # Startup script</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">└── requirements.txt # Python dependencies</span><br></span></code></pre></div></div>
-<p>API Endpoints</p>
+<p>Endpoint Catalog</p>
 <ul>
-<li class="">Authentication (6)<!-- -->
-<ul>
-<li class="">GET /api/auth/login - OAuth2 Login</li>
-<li class="">GET /api/auth/callback - OAuth2 Callback</li>
-<li class="">POST /api/auth/token - Get JWT token</li>
-<li class="">POST /api/auth/refresh - Refresh token</li>
-<li class="">GET /api/auth/me - Get current user info</li>
-<li class="">POST /api/auth/logout - Logout</li>
-</ul>
-</li>
-<li class="">LDS-compatible (2) — recommended for main system integration<!-- -->
-<ul>
-<li class="">POST /api/general_bot - General conversation; body includes courseInfo, optional referrer_pathname, form_state, and learning-design arrays</li>
-<li class="">POST /api/ilo_bot - Generate ILO suggestions; body includes courseInfo, optional referrer_pathname, form_state, learning-design arrays, optional request_type (initial/reload) and reload_metadata.original_suggestions on reload</li>
-</ul>
-</li>
-<li class="">Core Features (6)<!-- -->
-<ul>
-<li class="">POST /api/chat - General chat interface</li>
-<li class="">POST /api/generate_ilos - Generate Intended Learning Outcomes</li>
-<li class="">POST /api/suggest_dp - Suggest Disciplinary Practices</li>
-<li class="">POST /api/analyze-document - Analyze teaching documents</li>
-<li class="">POST /api/extract-course-info - Extract course info from docs</li>
-<li class="">POST /api/save-conversation - Save conversation history</li>
-</ul>
-</li>
-<li class="">System &amp; Docs (4)<!-- -->
-<ul>
-<li class="">GET / - Health Check</li>
-<li class="">GET /api/health - Detailed Health Check</li>
-<li class="">GET /docs - Swagger UI (interactive API docs)</li>
-<li class="">GET /api/openapi.json - OpenAPI (Swagger) specification</li>
-</ul>
-</li>
+<li class="">Chapter 2 focuses on architecture only (no endpoint list).</li>
+<li class="">Runtime integration endpoints are documented in <a class="" href="/ai-agent-doc/docs/main_system_integration">Chapter 6: Main System Integration</a>.</li>
+<li class="">LDS Options/lookup API background is documented in <a class="" href="/ai-agent-doc/docs/lds_rest_api_for_chatbot">Chapter 7: LDS REST API for Chatbot (Appendix)</a>.</li>
+<li class="">Testable endpoint examples are documented in <a class="" href="/ai-agent-doc/docs/postman">Chapter 5: API Testing with Postman</a>.</li>
 </ul>
 <p>Integration Ports and Links (for LDS caller)</p>
-<table><thead><tr><th>Item</th><th>Default Port</th><th>Example Link</th></tr></thead><tbody><tr><td>API public entry (via reverse proxy)</td><td>80/443</td><td><code>http(s)://&lt;agent-host&gt;/api/ilo_bot</code></td></tr><tr><td>FastAPI app (internal process)</td><td>5000 (default deploy)</td><td><code>http://127.0.0.1:5000/docs</code></td></tr><tr><td>Admin backend (optional operations only)</td><td>5001 (default deploy)</td><td><code>http://127.0.0.1:5001/api/auth/token</code></td></tr><tr><td>Docs site (optional static site)</td><td>3000 (local preview)</td><td><code>http://127.0.0.1:3000/</code></td></tr></tbody></table>
+<table><thead><tr><th>Item</th><th>Default Port</th><th>Example Link</th></tr></thead><tbody><tr><td>API public entry (via reverse proxy)</td><td>80/443</td><td><code>http(s)://&lt;agent-host&gt;/...</code></td></tr><tr><td>FastAPI app (internal process)</td><td>5000 (default deploy)</td><td><code>http://127.0.0.1:5000/docs</code></td></tr><tr><td>Admin backend (optional operations only)</td><td>5001 (default deploy)</td><td><code>http://127.0.0.1:5001/...</code></td></tr><tr><td>Docs site (optional static site)</td><td>3000 (local preview)</td><td><code>http://127.0.0.1:3000/</code></td></tr></tbody></table>
 <p>AI Integration Layer (api/utils.py)</p>
 <ul>
 <li class="">call_openai() - Calls Azure OpenAI API</li>
@@ -95,7 +65,7 @@
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="223-data-flow-lds--agent-api">2.2.3 Data Flow (LDS ↔ Agent API)<a href="#223-data-flow-lds--agent-api" class="hash-link" aria-label="Direct link to 2.2.3 Data Flow (LDS ↔ Agent API)" title="Direct link to 2.2.3 Data Flow (LDS ↔ Agent API)" translate="no">​</a></h3>
 <ol>
 <li class="">LDS obtains access token.</li>
-<li class="">LDS calls <code>POST /api/general_bot</code> or <code>POST /api/ilo_bot</code>.</li>
+<li class="">LDS calls the runtime integration APIs (see Chapter 6).</li>
 <li class="">Agent validates request (Pydantic).</li>
 <li class="">Agent composes context from <code>courseInfo</code>, <code>form_state</code>, and optional LDS options lookup.</li>
 <li class="">Agent calls Azure OpenAI and post-processes output.</li>
@@ -126,15 +96,12 @@
 </ul>
 <p>Directory Structure (admin backend only)
 <code>admin_portal/backend/</code> contains auth and client-management APIs for operational maintenance.</p>
-<p>API Endpoints</p>
+<p>Admin Operations Reference</p>
 <ul>
-<li class="">/api/auth/token - Login (form body: username, password)</li>
-<li class="">/api/auth/me - User Info</li>
-<li class=""><strong>POST /api/auth/users</strong> - Create user (<strong>Admin only</strong>; requires Bearer token and current user must be admin). Body: username, password, email, full_name, optional is_admin. <strong>Public registration is disabled</strong>; accounts must be created by an administrator.</li>
-<li class="">/api/clients - Client Management (CRUD)</li>
-<li class="">/oauth/authorize - OAuth2 Authorization Endpoint</li>
-<li class="">/oauth/token - OAuth2 Token Endpoint</li>
+<li class="">Chapter 2 keeps architecture-only content.</li>
+<li class="">For operational auth/client endpoints used by maintainers, refer to the Admin Portal OpenAPI/Swagger in the deployment environment.</li>
+<li class="">Runtime LDS integration API details are documented in <a class="" href="/ai-agent-doc/docs/main_system_integration">Chapter 6</a>.</li>
 </ul>
-<p><strong>Note</strong>: A default admin is no longer created automatically; the first admin must be created via an existing admin or database/bootstrap. The former “POST /api/auth/register - Register” is disabled (returns 403).</p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/ai-agent-doc/docs/intro"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Chapter 1: Introduction</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/ai-agent-doc/docs/login_page"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Chapter 3: Access Control and Attack Surface</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#21-overall-architecture-pattern" class="table-of-contents__link toc-highlight">2.1 Overall Architecture Pattern</a></li><li><a href="#22-main-application-architecture" class="table-of-contents__link toc-highlight">2.2 Main Application Architecture</a><ul><li><a href="#221-rest-api-server-architecture" class="table-of-contents__link toc-highlight">2.2.1 REST API Server Architecture</a></li><li><a href="#222-core-business-logic" class="table-of-contents__link toc-highlight">2.2.2 Core Business Logic</a></li><li><a href="#223-data-flow-lds--agent-api" class="table-of-contents__link toc-highlight">2.2.3 Data Flow (LDS ↔ Agent API)</a></li></ul></li><li><a href="#23-optional-admin-operations-api-non-runtime" class="table-of-contents__link toc-highlight">2.3 Optional Admin Operations API (non-runtime)</a><ul><li><a href="#231-backend-architecture" class="table-of-contents__link toc-highlight">2.3.1 Backend Architecture</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/ai-agent-doc/docs/intro">Documentation</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://stackoverflow.com/questions/tagged/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">Stack Overflow<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://discordapp.com/invite/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://x.com/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">X<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/facebook/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 My Project, Inc. Built with Docusaurus.</div></div></div></footer></div>
+<p><strong>Note</strong>: A default admin is no longer created automatically; the first admin must be created via an existing admin or database/bootstrap. Public self-registration is disabled.</p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/ai-agent-doc/docs/intro"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Chapter 1: Introduction</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/ai-agent-doc/docs/login_page"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Chapter 3: Access Control and Attack Surface</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#21-overall-architecture-pattern" class="table-of-contents__link toc-highlight">2.1 Overall Architecture Pattern</a></li><li><a href="#22-main-application-architecture" class="table-of-contents__link toc-highlight">2.2 Main Application Architecture</a><ul><li><a href="#221-rest-api-server-architecture" class="table-of-contents__link toc-highlight">2.2.1 REST API Server Architecture</a></li><li><a href="#222-core-business-logic" class="table-of-contents__link toc-highlight">2.2.2 Core Business Logic</a></li><li><a href="#223-data-flow-lds--agent-api" class="table-of-contents__link toc-highlight">2.2.3 Data Flow (LDS ↔ Agent API)</a></li></ul></li><li><a href="#23-optional-admin-operations-api-non-runtime" class="table-of-contents__link toc-highlight">2.3 Optional Admin Operations API (non-runtime)</a><ul><li><a href="#231-backend-architecture" class="table-of-contents__link toc-highlight">2.3.1 Backend Architecture</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/ai-agent-doc/docs/intro">Documentation</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://stackoverflow.com/questions/tagged/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">Stack Overflow<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://discordapp.com/invite/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://x.com/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">X<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/facebook/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 My Project, Inc. Built with Docusaurus.</div></div></div></footer></div>
 </body>
 </html>
