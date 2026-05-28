@@ -30,37 +30,19 @@ Directory Structure
 └── requirements.txt # Python dependencies
 ```
 
-API Endpoints
-- Authentication (6)
-  - GET /api/auth/login - OAuth2 Login
-  - GET /api/auth/callback - OAuth2 Callback
-  - POST /api/auth/token - Get JWT token
-  - POST /api/auth/refresh - Refresh token
-  - GET /api/auth/me - Get current user info
-  - POST /api/auth/logout - Logout
-- LDS-compatible (2) — recommended for main system integration
-  - POST /api/general_bot - General conversation; body includes courseInfo, optional referrer_pathname, form_state, and learning-design arrays
-  - POST /api/ilo_bot - Generate ILO suggestions; body includes courseInfo, optional referrer_pathname, form_state, learning-design arrays, optional request_type (initial/reload) and reload_metadata.original_suggestions on reload
-- Core Features (6)
-  - POST /api/chat - General chat interface
-  - POST /api/generate_ilos - Generate Intended Learning Outcomes
-  - POST /api/suggest_dp - Suggest Disciplinary Practices
-  - POST /api/analyze-document - Analyze teaching documents
-  - POST /api/extract-course-info - Extract course info from docs
-  - POST /api/save-conversation - Save conversation history
-- System & Docs (4)
-  - GET / - Health Check
-  - GET /api/health - Detailed Health Check
-  - GET /docs - Swagger UI (interactive API docs)
-  - GET /api/openapi.json - OpenAPI (Swagger) specification
+Endpoint Catalog
+- Chapter 2 focuses on architecture only (no endpoint list).
+- Runtime integration endpoints are documented in [Chapter 6: Main System Integration](./main_system_integration.md).
+- LDS Options/lookup API background is documented in [Chapter 7: LDS REST API for Chatbot (Appendix)](./lds_rest_api_for_chatbot.md).
+- Testable endpoint examples are documented in [Chapter 5: API Testing with Postman](./postman.md).
 
 Integration Ports and Links (for LDS caller)
 
 | Item | Default Port | Example Link |
 |------|--------------|--------------|
-| API public entry (via reverse proxy) | 80/443 | `http(s)://<agent-host>/api/ilo_bot` |
+| API public entry (via reverse proxy) | 80/443 | `http(s)://<agent-host>/...` |
 | FastAPI app (internal process) | 5000 (default deploy) | `http://127.0.0.1:5000/docs` |
-| Admin backend (optional operations only) | 5001 (default deploy) | `http://127.0.0.1:5001/api/auth/token` |
+| Admin backend (optional operations only) | 5001 (default deploy) | `http://127.0.0.1:5001/...` |
 | Docs site (optional static site) | 3000 (local preview) | `http://127.0.0.1:3000/` |
 
 AI Integration Layer (api/utils.py)
@@ -84,7 +66,7 @@ See Chapter 4 for chatbot logic details.
 
 ### 2.2.3 Data Flow (LDS ↔ Agent API)
 1. LDS obtains access token.
-2. LDS calls `POST /api/general_bot` or `POST /api/ilo_bot`.
+2. LDS calls the runtime integration APIs (see Chapter 6).
 3. Agent validates request (Pydantic).
 4. Agent composes context from `courseInfo`, `form_state`, and optional LDS options lookup.
 5. Agent calls Azure OpenAI and post-processes output.
@@ -114,12 +96,9 @@ Database Models
 Directory Structure (admin backend only)
 `admin_portal/backend/` contains auth and client-management APIs for operational maintenance.
 
-API Endpoints
-- /api/auth/token - Login (form body: username, password)
-- /api/auth/me - User Info
-- **POST /api/auth/users** - Create user (**Admin only**; requires Bearer token and current user must be admin). Body: username, password, email, full_name, optional is_admin. **Public registration is disabled**; accounts must be created by an administrator.
-- /api/clients - Client Management (CRUD)
-- /oauth/authorize - OAuth2 Authorization Endpoint
-- /oauth/token - OAuth2 Token Endpoint
+Admin Operations Reference
+- Chapter 2 keeps architecture-only content.
+- For operational auth/client endpoints used by maintainers, refer to the Admin Portal OpenAPI/Swagger in the deployment environment.
+- Runtime LDS integration API details are documented in [Chapter 6](./main_system_integration.md).
 
-**Note**: A default admin is no longer created automatically; the first admin must be created via an existing admin or database/bootstrap. The former “POST /api/auth/register - Register” is disabled (returns 403).
+**Note**: A default admin is no longer created automatically; the first admin must be created via an existing admin or database/bootstrap. Public self-registration is disabled.
