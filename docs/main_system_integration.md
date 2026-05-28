@@ -8,6 +8,20 @@ This page describes what the main system (LDS) can ask this sub-system (AI Agent
 
 ---
 
+## Integration Quick Start (Ports + Links)
+
+This Agent is a **REST API Server only**. LDS should call API endpoints directly.
+
+| Purpose | Port | Link to call |
+|---|---:|---|
+| Production API entry (recommended) | 80/443 | `http(s)://<agent-host>/api/general_bot` / `http(s)://<agent-host>/api/ilo_bot` |
+| FastAPI internal service (default deployment) | 5000 | `http://127.0.0.1:5000/api/general_bot` / `http://127.0.0.1:5000/api/ilo_bot` |
+| OpenAPI docs | same as API entry | `http(s)://<agent-host>/docs` |
+
+If your environment uses different ports (e.g. `8000`), keep the same paths and replace host/port accordingly.
+
+---
+
 ## LDS-Dedicated Endpoints (Recommended for Integration)
 
 When integrating with the LDS main system, **use these two LDS-compatible endpoints first**. The request body must include **`courseInfo`**; optional fields include **`referrer_pathname`**, **`form_state`**, and learning-design arrays. The Agent uses them to provide contextual replies.
@@ -19,7 +33,7 @@ When integrating with the LDS main system, **use these two LDS-compatible endpoi
 - **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
 - **Response**: `{ chat_message_reply: { text }, actions: [...] }`
 
-When LDS triggers the request from a form page (e.g. Course Information, ILO edit page), it can send **`form_state`** (same structure as the front-end form). The Agent uses it to build context; IDs can be resolved to human-readable names via the LDS Options API if needed.
+When LDS triggers the request from a form page (e.g. Course Information, ILO edit page), it can send **`form_state`**. The Agent uses it to build context; IDs can be resolved to human-readable names via LDS options lookup when needed.
 
 #### DRAFT: `open_ilo_bot` action (General Bot → ILO Bot)
 
@@ -39,6 +53,45 @@ The Agent **may** (once implemented) return an action with **`action_type: "open
 
 LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO category and Bloom level fields** when writing suggestions back into the ILO form.
 
+#### Current production behavior (authoritative)
+
+- The API always returns **exactly 3 suggestions**.
+- `statement` text is sanitized by backend: trailing metadata such as `(Level: ...)`, `(Type: ...)`, `(Bt Level: ...)` is removed.
+- `type_id` and `bloom_taxonomy_level_id` are mandatory integer fields in each suggestion.
+- For reload, use:
+  - `request_type: "reload"`
+  - `reload_metadata.original_suggestions` (recommended: pass the 3 suggestions currently shown in LDS UI)
+
+#### Reload Diversity Rules (current system)
+
+When `request_type = reload`, backend applies additional diversity constraints:
+
+1. **Statement rule (strict)**  
+   New statements cannot exactly repeat recent statements (same user/course/referrer window).
+
+2. **Action verb rule (strict)**  
+   Leading action verbs cannot repeat recent verbs in the same window.
+
+3. **Task type rule (strict)**  
+   Task types are diversified across the batch and against recent usage (e.g. avoid cycling `identify` / `compare` / `reflect`).
+
+4. **Semantic similarity rule**  
+   Backend checks semantic similarity and rewrites overly similar suggestions.
+
+5. **Category / Bloom diversity rule**  
+   Backend prefers diverse `type_id` and `bloom_taxonomy_level_id`, and tries to avoid previous batch IDs when valid alternatives exist.
+
+> Diversity memory window: last 5 batches (up to 15 suggestions) per user+course+referrer runtime key.
+
+#### Reload Environment Variables
+
+- `ILO_RELOAD_SEMANTIC_THRESHOLD` (default `0.86`)
+- `ILO_RELOAD_GENERATION_TEMPERATURE` (default `0.55`)
+- `ILO_RELOAD_REWRITE_TEMPERATURE` (default `0.78`)
+- `ILO_RELOAD_REWRITE_MAX_ATTEMPTS` (default `2`)
+
+Lower threshold = stricter semantic dedup (more rewrites).
+
 **ILO prompt (Oscar):** ILO generation follows the rules in [ILO Prompt (Oscar)](./prompts/ilo_prompt_oscar.txt): four ILO categories (Disciplinary Knowledge, Disciplinary Skills, Generic Skills, Values and Attitudes), Bloom’s Taxonomy verbs, quality criteria (student-centred, measurable, specific, appropriate difficulty), cognitive progression, alignment with course information, and suggested counts per category (e.g. about four). Placeholders `{COURSE_INFORMATION}` and `{ILO_GUIDELINES}` are filled from the request body and RAG or guideline content.
 
 #### Button-triggered “AI suggest ILO” flow (main system → sub-system)
@@ -47,6 +100,16 @@ LDS can use `type_id` and `bloom_taxonomy_level_id` to **pre-fill the ILO catego
 2. **On click**: The main system calls **POST** `{sub-system base URL}/api/ilo_bot` with an access token; body includes `courseInfo` (and optionally `form_state`, `referrer_pathname`). For a **Reload** action, set `request_type` to `reload` and pass the previous three suggestions in `reload_metadata.original_suggestions`.
 3. **Sub-system**: Returns ILO suggestions (`chat_message_reply` + `actions`).
 4. **Main system**: Displays the response in a modal, sidebar, or form for the teacher to select or edit, then save.
+
+#### Contract Acceptance Checklist (for Ronson)
+
+- Caller can reach:
+  - `POST /api/general_bot`
+  - `POST /api/ilo_bot`
+  - `GET /docs`
+- `POST /api/ilo_bot` returns 200 and includes `actions[].payload.suggestions[3]`.
+- `statement` does not include `(Level:..., Type:...)`.
+- Reload request with `original_suggestions` returns a diversified batch (verb/type/semantic differences).
 
 ---
 
@@ -89,5 +152,6 @@ The endpoints below remain available; **for LDS integration, prefer `/api/genera
 ## Summary
 
 - **LDS main system**: Prefer **POST `/api/general_bot`** (general conversation) and **POST `/api/ilo_bot`** (ILO suggestions), with **`courseInfo`** in the body and optional **`referrer_pathname`**, **`form_state`**, and learning-design arrays.
-- **form_state**: When triggering from a form page, send `form_state` (same structure as the front-end form). The Agent uses it to build context and may use the LDS Options API to resolve IDs to readable names.
+- **form_state**: When triggering from a form page, send `form_state`. The Agent uses it to build context and may use LDS options lookup to resolve IDs to readable names.
 - Other endpoints (`/api/chat`, `/api/generate_ilos`, etc.) remain available; see [Chapter 2: Application Architecture](./app_archi.md) and [Chapter 5: API Testing with Postman](./postman.md) for details.
+- LDS options/patterns lookup API details are in **Appendix**: [Chapter 7: LDS REST API for Chatbot (Appendix)](./lds_rest_api_for_chatbot.md).

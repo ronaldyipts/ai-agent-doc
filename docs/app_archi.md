@@ -5,43 +5,14 @@ sidebar_position: 2
 # Chapter 2: Application Architecture
 
 ## 2.1 Overall Architecture Pattern
-- Adopts a decoupled frontend-backend architecture, consisting of two independent applications:
-  - Main Application (LDS Chatbot): Learning Design Assistant
-  - Admin Portal: OAuth2 Authorization Server
+- **This sub-system is a REST API Server (FastAPI)**.
+- It does **not** provide an end-user frontend UI as part of the integration contract.
+- The LDS main system (Laravel) is the caller and UI host; this Agent only exposes HTTP APIs.
+- Optional admin components may exist for operations, but they are not part of the LDS-to-Agent runtime API contract.
 
 ## 2.2 Main Application Architecture
 
-### 2.2.1 Frontend Architecture
-Tech Stack
-- React 18.3.1
-- Vite 5.4.8
-- No external state management library (uses React Hooks)
-
-Frontend Features
-- Responsive design
-- Real-time chat interface
-- File upload (PDF, DOCX, TXT)
-- Quick action buttons
-- Conversation suggested question generation
-
-Directory Structure
-```
-src/
-├── App.jsx      # Main application component (contains all page logic)
-├── main.jsx     # React entry file
-└── styles.css   # Global styles
-```
-
-Key Functional Modules
-- Chatbot Page
-  - Conversation interface, file upload, course information input.
-- ILO Generation Page
-  - Form for generating learning objectives.
-  - Multi-language support: Traditional Chinese (zh_HK) and English (en_US).
-- Conversation History Management
-  - localStorage persistence, export as .txt, clear conversation.
-
-### 2.2.2 Backend Architecture
+### 2.2.1 REST API Server Architecture
 Tech Stack
 - FastAPI (Python Web Framework)
 - Uvicorn (ASGI Server)
@@ -83,6 +54,15 @@ API Endpoints
   - GET /docs - Swagger UI (interactive API docs)
   - GET /api/openapi.json - OpenAPI (Swagger) specification
 
+Integration Ports and Links (for LDS caller)
+
+| Item | Default Port | Example Link |
+|------|--------------|--------------|
+| API public entry (via reverse proxy) | 80/443 | `http(s)://<agent-host>/api/ilo_bot` |
+| FastAPI app (internal process) | 5000 (default deploy) | `http://127.0.0.1:5000/docs` |
+| Admin backend (optional operations only) | 5001 (default deploy) | `http://127.0.0.1:5001/api/auth/token` |
+| Docs site (optional static site) | 3000 (local preview) | `http://127.0.0.1:3000/` |
+
 AI Integration Layer (api/utils.py)
 - call_openai() - Calls Azure OpenAI API
 - run_chat_with_optional_tools() - Chat supporting tool calls
@@ -99,23 +79,17 @@ Response Format Validation
 - validate_response_format() - Validation function
 - Double validation: forced format during API call + validation after response
 
-### 2.2.3 Core Business Logic
+### 2.2.2 Core Business Logic
 See Chapter 4 for chatbot logic details.
 
-### 2.2.4 Data Flow
-Client to server to AI or LDS integration
-1. User enters text and clicks Send
-2. POST /api/chat (request)
-3. Vite proxy forwards request to localhost:5000 to avoid CORS
-4. Backend validates request (Pydantic)
-5. Send prompt for AI response
-6. Return AI completion
-7. Fetch external LDS data
-8. Return LDS data
-9. Response validation (JSON Schema)
-10. Return JSON response
-11. Frontend parses JSON and updates state
-12. Render message bubble
+### 2.2.3 Data Flow (LDS ↔ Agent API)
+1. LDS obtains access token.
+2. LDS calls `POST /api/general_bot` or `POST /api/ilo_bot`.
+3. Agent validates request (Pydantic).
+4. Agent composes context from `courseInfo`, `form_state`, and optional LDS options lookup.
+5. Agent calls Azure OpenAI and post-processes output.
+6. Agent returns LDS-compatible JSON (`chat_message_reply` + `actions`).
+7. LDS renders the response in its own UI.
 
 ## 2.3 Admin Portal Architecture
 

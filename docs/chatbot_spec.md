@@ -115,3 +115,37 @@ Example (English UI; Traditional Chinese variants are allowed when the app local
 - Format: `{role: "user"|"assistant", content: "..."}`
 - Filtering: Empty messages excluded
 - Context preservation: Maintains conversation flow for better responses
+
+## 4.6 ILO Reload Diversity and Output Rules
+
+This section documents the current behavior of `POST /api/ilo_bot`.
+
+- Output count is fixed to **3 ILO suggestions**.
+- Suggestion schema includes:
+  - `statement` (string)
+  - `type_id` (int)
+  - `bloom_taxonomy_level_id` (int)
+- Backend removes metadata suffixes from `statement` such as:
+  - `(Level: ...)`
+  - `(Type: ...)`
+  - `(Bt Level: ...)`
+  These fields must be represented by IDs, not embedded inside statement text.
+
+Reload-specific behavior (`request_type = reload`):
+
+- Uses `reload_metadata.original_suggestions` (if provided) as prior batch context.
+- Enforces strict no-repeat on exact statement keys in recent runtime window.
+- Enforces strict no-repeat on leading action verbs in recent runtime window.
+- Enforces task-type diversification (avoid repeating recent task types and in-batch duplicates).
+- Applies semantic dedup and rewrite when suggestions are too similar.
+- Prefers diverse `type_id` and `bloom_taxonomy_level_id` across the batch.
+
+Runtime window and tuning:
+
+- Diversity memory is in-process runtime memory, scoped by user+course+referrer key.
+- Current window length is about last 5 batches (max 15 suggestions).
+- Tune with environment variables:
+  - `ILO_RELOAD_SEMANTIC_THRESHOLD`
+  - `ILO_RELOAD_GENERATION_TEMPERATURE`
+  - `ILO_RELOAD_REWRITE_TEMPERATURE`
+  - `ILO_RELOAD_REWRITE_MAX_ATTEMPTS`

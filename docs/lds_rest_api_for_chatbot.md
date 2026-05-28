@@ -2,11 +2,14 @@
 sidebar_position: 7
 ---
 
-# Chapter 7: LDS REST API for Chatbot
+# Chapter 7: LDS REST API for Chatbot (Appendix)
+
+> Appendix note: this chapter is intentionally placed after the main integration flow.
+> For first-time integration, read [Chapter 6: Main System Integration](./main_system_integration.md) first.
 
 This AI Agent sub-system may call the **LDS REST API for Chatbot** (Options API) to resolve IDs in `form_state` (e.g. `grade_level_id`, `subject_ids`) into human-readable names, which are then included in the generation context.
 
-- **Purpose**: When LDS sends `form_state` (same structure as the front-end form), the Agent can use this API to map option IDs to display names, improving contextual and readable replies.
+- **Purpose**: When LDS sends `form_state`, the Agent can use this API to map option IDs to display names, improving contextual and readable replies.
 - **Full endpoint list and usage**: See **`docs/LDS-REST-API-for-Chatbot.md`** in the LDS-Chatbot project (or the Swagger/docs provided by the main system team). This page is a short overview; the authoritative specification is the main system documentation.
 
 Related: [Chapter 6: Main System Integration](./main_system_integration.md), [Chapter 4: Chatbot Specifications — LDS context](./chatbot_spec.md#46-lds-context).
@@ -18,7 +21,18 @@ Related: [Chapter 6: Main System Integration](./main_system_integration.md), [Ch
 | Layer | Host | Role |
 |-------|------|------|
 | **LDS REST API for Chatbot** (Options, Patterns, Learning Design GET, …) | LDS main system (Laravel) | The Agent **calls** these endpoints (with LDS OAuth credentials) to resolve IDs and fetch patterns when building context. |
-| **POST `/api/general_bot`**, **POST `/api/ilo_bot`** | **This AI Agent** sub-system | LDS **calls** these with a Bearer token; responses use the [External AI Agent JSON shape](https://hkucite.github.io/lds-external-ai-agent/docs/overall-json-structure). |
+| **POST `/api/general_bot`**, **POST `/api/ilo_bot`** | **This AI Agent REST API Server** | LDS **calls** these with a Bearer token; responses use the [External AI Agent JSON shape](https://hkucite.github.io/lds-external-ai-agent/docs/overall-json-structure). |
+
+---
+
+## Minimal Connectivity Checklist (for caller)
+
+- API entry port: typically `80/443` (or your internal `5000/8000`), confirmed by deployment.
+- Required callable links:
+  - `http(s)://<agent-host>/api/general_bot`
+  - `http(s)://<agent-host>/api/ilo_bot`
+  - `http(s)://<agent-host>/docs` (for schema verification)
+- LDS options lookup endpoints remain on LDS host and are called by Agent backend only.
 
 ---
 
