@@ -58,6 +58,10 @@
     {
       "key": "scope",
       "value": "chatbot"
+    },
+    {
+      "key": "job_id",
+      "value": ""
     }
   ],
   "item": [
@@ -109,7 +113,7 @@
               ]
             },
             "url": "{{base_url}}/api/auth/token",
-            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDS Chatbot user). Saves access_token and refresh_token to collection variables."
+            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDS Chatbot user). When the server has ADMIN_PORTAL_URL set, credentials are validated against the Admin Portal user DB. Saves access_token and refresh_token to collection variables."
           }
         },
         {
@@ -257,6 +261,14 @@
             "url": "{{base_url}}/api/health",
             "description": "Detailed API health check."
           }
+        },
+        {
+          "name": "Get Agent Info",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/info",
+            "description": "Returns agent capabilities: chatbot_paths and tasks (id, name, description, path) for LDS UI."
+          }
         }
       ]
     },
@@ -279,7 +291,7 @@
               "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n"
             },
             "url": "{{base_url}}/api/general_bot",
-            "description": "LDS-compatible general conversation. Required: message, courseInfo. Optional: referrer_pathname, form_state, disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. In sync mode returns 200 with chat_message_reply/actions. In async mode returns 202 with job_id/check_url; then poll GET /api/jobs/{job_id}.",
+            "description": "LDS-compatible general conversation. Required: message, courseInfo. Optional: referrer_pathname, form_state, conversation_history, chat_session_id, locale (zh_HK|en_US), disciplinaryPractices, pedagogicalApproaches, intendedLearningOutcomes, lessons. May return open_specialist_bot for ILO handoff. Sync: 200; async (BOT_RESPONSE_MODE=async): 202 + poll GET /api/jobs/{job_id}.",
             "response": [
               {
                 "name": "Example: General Bot handoff to ILO Bot",
@@ -314,9 +326,9 @@
                   "try { data = pm.response.json(); } catch (e) {}",
                   "if (pm.response.code === 202 && data.job_id) {",
                   "  const jobId = String(data.job_id).trim();",
-                  "  pm.environment.set(\"job_id\", jobId);",
+                  "  pm.collectionVariables.set('job_id', jobId);",
                   "  if (data.check_url) {",
-                  "    pm.environment.set(\"check_url\", String(data.check_url).trim());",
+                  "    pm.collectionVariables.set('check_url', String(data.check_url).trim());",
                   "  }",
                   "}",
                   "pm.test(\"general_bot returns 200 or 202\", function () {",
@@ -369,7 +381,30 @@
               "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [\n      4,\n      5\n    ]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"request_type\": \"initial\"\n}\n"
             },
             "url": "{{base_url}}/api/ilo_bot",
-            "description": "LDS-compatible ILO suggestions. Required: courseInfo. Optional: referrer_pathname, form_state, LD arrays. Optional request_type: initial | reload; on reload use reload_metadata.original_suggestions (last 3 suggestions). CamelCase keys also accepted. Returns 3 suggestions. OpenAPI: LDS-Chatbot docs/openapi.json → ilo_request."
+            "description": "LDS-compatible ILO suggestions. Required: courseInfo. Optional: referrer_pathname, form_state, locale (zh_HK|en_US), LD arrays, request_type (initial|reload), reload_metadata.original_suggestions (last 3 on reload). Returns exactly 3 suggestions (statement, type_id, bloom_taxonomy_level_id). OpenAPI: LDS-Chatbot docs/openapi.json.",
+            "response": [
+              {
+                "name": "Example: ILO response with category and Bloom level",
+                "originalRequest": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [\n      4,\n      5\n    ]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"request_type\": \"initial\"\n}\n"
+                  },
+                  "url": "{{base_url}}/api/ilo_bot"
+                },
+                "status": "OK",
+                "code": 200,
+                "_postman_previewlanguage": "json",
+                "body": "{\n  \"chat_message_reply\": { \"text\": \"Here are suggested ILOs based on your course context.\" },\n  \"actions\": [\n    {\n      \"action_type\": \"show_suggestion\",\n      \"target\": { \"context\": \"ILO\", \"context_object_id\": 0 },\n      \"payload\": {\n        \"suggestions\": [\n          { \"statement\": \"Describe the main steps of the engineering design process.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2, \"action_verb\": \"Describe\" },\n          { \"statement\": \"Explain the purpose of each stage in the engineering design cycle.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2, \"action_verb\": \"Explain\" },\n          { \"statement\": \"Summarize how inquiry skills are applied during engineering design.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2, \"action_verb\": \"Summarize\" }\n        ]\n      },\n      \"ui\": { \"presentation\": \"popup\", \"highlight_target\": \"#ILO.view-pattern\" }\n    }\n  ]\n}\n"
+              }
+            ]
           }
         },
         {
@@ -387,7 +422,7 @@
               "raw": "{\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"request_type\": \"reload\",\n  \"reload_metadata\": {\n    \"original_suggestions\": [\n      { \"statement\": \"Describe the main steps of the engineering design process.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2 },\n      { \"statement\": \"Explain the purpose of each stage in the engineering design cycle.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2 },\n      { \"statement\": \"Summarize how inquiry skills are applied during engineering design.\", \"type_id\": 1, \"bloom_taxonomy_level_id\": 2 }\n    ]\n  }\n}\n"
             },
             "url": "{{base_url}}/api/ilo_bot",
-            "description": "Reload flow: request_type=reload plus previous 3 suggestions under reload_metadata.original_suggestions."
+            "description": "Same as ILO Bot (LDS) but request_type=reload. Pass the last 3 suggestions from the previous response in reload_metadata.original_suggestions so the Agent steers toward new wording. If omitted, behavior falls back to a normal generation."
           }
         },
         {
