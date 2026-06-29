@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "LDS External AI Agent",
-    "description": "Curated collection for the LDS Chatbot and related APIs. Import this single JSON only. Then: 1) Edit collection → Variables → set username and password (AI agent's Admin Portal credentials, not LDS) 2) Run **1. Retrieve Access Token** 3) Call any API.",
+    "name": "Learning Design Facilitator (LDF)",
+    "description": "Curated collection for the Learning Design Facilitator (LDF) and related APIs. Import this single JSON only. Then: 1) Edit collection → Variables → set username and password (AI agent's Admin Portal credentials, not LDS) 2) Run **1. Retrieve Access Token** 3) Call any API.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -17,7 +17,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://ideals-ldf.cite.hku.hk"
+      "value": "https://ideals-ldf.cite.hku.hk"
     },
     {
       "key": "username",
@@ -113,7 +113,7 @@
               ]
             },
             "url": "{{base_url}}/api/auth/token",
-            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDS Chatbot user). When the server has ADMIN_PORTAL_URL set, credentials are validated against the Admin Portal user DB. Saves access_token and refresh_token to collection variables."
+            "description": "Get access token. Body: x-www-form-urlencoded with username and password (Admin Portal / LDF service account). When the server has ADMIN_PORTAL_URL set, credentials are validated against the Admin Portal user DB. Saves access_token and refresh_token to collection variables."
           }
         },
         {
@@ -274,7 +274,7 @@
     },
     {
       "name": "2 - Core",
-      "description": "Core chatbot and learning-design endpoints. For LDS integration, prefer General Bot and ILO Bot. Require access_token (run 1. Retrieve Access Token first).",
+      "description": "Core Learning Design Facilitator (LDF) and learning-design endpoints. For LDS integration, prefer General Bot and ILO Bot. Require access_token (run 1. Retrieve Access Token first).",
       "item": [
         {
           "name": "General Bot (LDS)",

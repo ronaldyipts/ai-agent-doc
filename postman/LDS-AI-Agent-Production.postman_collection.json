@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "b7c3e901-4f2a-4d8e-9c11-production-lds-agent",
-    "name": "LDS AI Agent — Production Smoke Test",
-    "description": "Production Postman collection for ideals-ldf.cite.hku.hk (or your production host).\n\nSetup:\n1. Import this collection.\n2. Collection → Variables → set username and password (Admin Portal / LDS service account).\n3. Run **1. Retrieve Access Token**.\n4. Run Health → Info → General Bot → ILO Bot.\n\nRequest bodies follow docs/postman/COURSE.json (LD 1490 — Engineering Design sample).",
+    "name": "Learning Design Facilitator (LDF) — Production Smoke Test",
+    "description": "Production Postman collection for ideals-ldf.cite.hku.hk (Learning Design Facilitator / LDF).\n\nSetup:\n1. Import this collection.\n2. Collection → Variables → set username and password (Admin Portal / LDS service account).\n3. Run **1. Retrieve Access Token**.\n4. Run Health → Info → General Bot → ILO Bot.\n\nRequest bodies follow docs/postman/COURSE.json (LD 1490 — Engineering Design sample).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -18,7 +18,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://ideals-ldf.cite.hku.hk"
+      "value": "https://ideals-ldf.cite.hku.hk"
     },
     {
       "key": "username",
