@@ -1,0 +1,185 @@
+{
+  "_description": "Sample LD context for Postman (LD 1490 — Engineering Design). Aligns with Ronson/LDS integration examples: courseInfo IDs resolve via LDS Options API; optional arrays mirror what LDS sends to general_bot / ilo_bot.",
+  "ld_id": 1490,
+  "courseInfo": {
+    "topic": "Engineering Design",
+    "title": "Engineering Design",
+    "grade_level_id": 5,
+    "subjects": [4, 5]
+  },
+  "referrer_pathname": {
+    "ilo_edit": "/designstudio/1490/intended-learning-outcome/456/edit",
+    "course_info": "/designstudio/1490/course-info"
+  },
+  "form_state": {
+    "ilo_edit": {
+      "statement": "",
+      "type_id": 0,
+      "bloom_taxonomy_level_id": 0
+    },
+    "course_info": {
+      "topic": "Engineering Design",
+      "grade_level_id": 5,
+      "subject_ids": [4, 5]
+    }
+  },
+  "disciplinaryPractices": [
+    {
+      "id": 201,
+      "title": "Engineering inquiry",
+      "description": "Students ask questions and investigate problems using engineering methods."
+    }
+  ],
+  "pedagogicalApproaches": [
+    {
+      "id": 301,
+      "title": "Design-based learning",
+      "description": "Students learn through iterative design challenges."
+    }
+  ],
+  "intendedLearningOutcomes": [
+    {
+      "id": 401,
+      "statement": "Describe the main stages of the engineering design process.",
+      "type_id": 1,
+      "bloom_taxonomy_level_id": 2
+    }
+  ],
+  "lessons": [
+    {
+      "id": 501,
+      "title": "Introduction to engineering design",
+      "sequence": 1
+    }
+  ],
+  "general_bot_request": {
+    "message": "What is an intended learning outcome (ILO), and how should I write one for this course?",
+    "locale": "en_US",
+    "courseInfo": {
+      "topic": "Engineering Design",
+      "title": "Engineering Design",
+      "grade_level_id": 5,
+      "subjects": [4, 5]
+    },
+    "referrer_pathname": "/designstudio/1490/course-info",
+    "form_state": {
+      "topic": "Engineering Design",
+      "grade_level_id": 5,
+      "subject_ids": [4, 5]
+    },
+    "disciplinaryPractices": [
+      {
+        "id": 201,
+        "title": "Engineering inquiry",
+        "description": "Students ask questions and investigate problems using engineering methods."
+      }
+    ],
+    "pedagogicalApproaches": [
+      {
+        "id": 301,
+        "title": "Design-based learning",
+        "description": "Students learn through iterative design challenges."
+      }
+    ],
+    "intendedLearningOutcomes": [
+      {
+        "id": 401,
+        "statement": "Describe the main stages of the engineering design process.",
+        "type_id": 1,
+        "bloom_taxonomy_level_id": 2
+      }
+    ],
+    "lessons": [
+      {
+        "id": 501,
+        "title": "Introduction to engineering design",
+        "sequence": 1
+      }
+    ]
+  },
+  "general_bot_handoff_request": {
+    "message": "Please help apply these ILO updates in LDS.",
+    "locale": "en_US",
+    "courseInfo": {
+      "topic": "Engineering Design",
+      "grade_level_id": 5,
+      "subjects": [4, 5]
+    },
+    "referrer_pathname": "/designstudio/1490/intended-learning-outcome/456/edit",
+    "form_state": {
+      "statement": "",
+      "type_id": 0,
+      "bloom_taxonomy_level_id": 0
+    }
+  },
+  "ilo_bot_request_initial": {
+    "request_type": "initial",
+    "locale": "en_US",
+    "courseInfo": {
+      "topic": "Engineering Design",
+      "grade_level_id": 5,
+      "subjects": [4, 5]
+    },
+    "referrer_pathname": "/designstudio/1490/intended-learning-outcome/0/edit",
+    "form_state": null,
+    "disciplinaryPractices": [
+      {
+        "id": 201,
+        "title": "Engineering inquiry",
+        "description": "Students ask questions and investigate problems using engineering methods."
+      }
+    ],
+    "pedagogicalApproaches": [
+      {
+        "id": 301,
+        "title": "Design-based learning",
+        "description": "Students learn through iterative design challenges."
+      }
+    ],
+    "intendedLearningOutcomes": [
+      {
+        "id": 401,
+        "statement": "Describe the main stages of the engineering design process.",
+        "type_id": 1,
+        "bloom_taxonomy_level_id": 2
+      }
+    ],
+    "lessons": [
+      {
+        "id": 501,
+        "title": "Introduction to engineering design",
+        "sequence": 1
+      }
+    ]
+  },
+  "ilo_bot_request_reload": {
+    "request_type": "reload",
+    "locale": "en_US",
+    "courseInfo": {
+      "topic": "Engineering Design",
+      "grade_level_id": 5,
+      "subjects": [4, 5]
+    },
+    "referrer_pathname": "/designstudio/1490/intended-learning-outcome/0/edit",
+    "form_state": null,
+    "reload_metadata": {
+      "original_suggestions": [
+        {
+          "statement": "Describe the main steps of the engineering design process.",
+          "type_id": 1,
+          "bloom_taxonomy_level_id": 2
+        },
+        {
+          "statement": "Explain the purpose of each stage in the engineering design cycle.",
+          "type_id": 1,
+          "bloom_taxonomy_level_id": 2
+        },
+        {
+          "statement": "Summarize how inquiry skills are applied during engineering design.",
+          "type_id": 1,
+          "bloom_taxonomy_level_id": 2
+        }
+      ]
+    }
+  }
+}
