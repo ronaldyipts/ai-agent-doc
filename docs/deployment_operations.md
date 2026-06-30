@@ -6,7 +6,7 @@ sidebar_position: 10
 
 This chapter documents **production and testing** operations for the **Learning Design Facilitator (LDF)** — implementation repo **LDS-Chatbot**. It complements [Chapter 3: Access Control](./login_page.md) and [Chapter 5: Postman](./postman.md).
 
-**Implementation reference:** `LDS-Chatbot/deploy/` (`nginx.conf`, `backup.sh`, `*.service`, `env.*.example`).
+**Implementation reference:** `LDS-Chatbot/deploy/` (`nginx.conf`, `nginx-ideals-ldf-ssl.conf`, `nginx-deny-sensitive-paths.conf`, `backup.sh`, `*.service`, `env.*.example`).
 
 ---
 
@@ -241,4 +241,59 @@ Full lists: `deploy/env.backend.example`, `deploy/env.admin-backend.example`.
 
 ---
 
-*Last aligned with LDS-Chatbot: Admin Portal all-user 2FA, async `general_bot` jobs, `open_specialist_bot` handoff, `deploy/backup.sh`, RAG eight-bucket retrieval, Nginx UI maintenance pattern.*
+## 10.12 Penetration test: Hidden File Found (ZAP 40035)
+
+**Finding:** Scanner reports **Medium** — “Hidden File Found” on paths such as:
+
+| URL (example) | Scanner evidence |
+|---------------|------------------|
+| `https://ideals-ldf.cite.hku.hk/.hg` | HTTP 200 |
+| `https://ideals-ldf.cite.hku.hk/.bzr` | HTTP 200 |
+| `https://ideals-ldf.cite.hku.hk/_darcs` | HTTP 200 |
+| `https://ideals-ldf.cite.hku.hk/BitKeeper` | HTTP 200 |
+
+**Classification:** CWE-538 (sensitive info in externally accessible file/dir), WASC-13, OWASP A05 (Security Misconfiguration), ZAP plugin **40035**.
+
+### Root cause (usually not real VCS data)
+
+These directories **do not need to exist** on the server. Nginx `location /` with `try_files $uri $uri/ /index.html` (or a maintenance HTML body) can return **200** for arbitrary paths. Scanners treat that as an exposed hidden file.
+
+### Remediation (Nginx)
+
+`LDS-Chatbot/deploy/nginx-deny-sensitive-paths.conf` — install and include **before** `location /`:
+
+```bash
+sudo cp deploy/nginx-deny-sensitive-paths.conf /etc/nginx/snippets/lds-deny-sensitive-paths.conf
+```
+
+In `/etc/nginx/sites-available/lds-chatbot` (inside `server {}`):
+
+```nginx
+include /etc/nginx/snippets/lds-deny-sensitive-paths.conf;
+```
+
+Shipped configs `deploy/nginx.conf` and `deploy/nginx-ideals-ldf-ssl.conf` already include this snippet.
+
+Apply:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Verify
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://ideals-ldf.cite.hku.hk/.hg
+curl -s -o /dev/null -w "%{http_code}\n" https://ideals-ldf.cite.hku.hk/BitKeeper
+```
+
+Expected: **404** (not 200).
+
+### Pen-test response text (optional)
+
+> No SCM or dotfile directories are deployed. Prior HTTP 200 responses were SPA fallback pages. Nginx now returns 404 for `/.git`, `/.hg`, `/.bzr`, `/_darcs`, `/BitKeeper`, and other dot-prefixed paths (except `/.well-known`).
+
+---
+
+*Last aligned with LDS-Chatbot: Admin Portal all-user 2FA, async `general_bot` jobs, `open_specialist_bot` handoff, `deploy/backup.sh`, RAG eight-bucket retrieval, Nginx UI maintenance pattern, Nginx deny sensitive paths (ZAP 40035).*

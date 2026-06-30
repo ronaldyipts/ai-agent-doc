@@ -63,6 +63,7 @@ Account lifecycle: `admin_portal/backend/scripts/create_admin.py` (`--interactiv
 - Restrict `/admin/` by network policy or reverse-proxy auth where possible.
 - Rotate `JWT_SECRET_KEY` separately in `/etc/lds-chatbot.env` and `/etc/lds-chatbot-admin.env` for production (invalidates existing tokens).
 - Keep `ACCESS_LOG_ADMIN_TOKEN` **identical** in both env files if Admin Portal reads main-system access logs.
+- Install Nginx snippet **`lds-deny-sensitive-paths.conf`** to return **404** on dotfiles and SCM paths (`/.git`, `/.hg`, `/.bzr`, `/_darcs`, `/BitKeeper`, …). Without it, SPA `try_files` can answer **HTTP 200** for non-existent paths and trigger **ZAP “Hidden File Found”** (plugin 40035 / CWE-538). See [Chapter 10 §10.12](./deployment_operations.md#1012-penetration-test-hidden-file-found-zap-40035).
 
 ## 3.6 Summary
 
