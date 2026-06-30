@@ -64,6 +64,7 @@ Account lifecycle: `admin_portal/backend/scripts/create_admin.py` (`--interactiv
 - Rotate `JWT_SECRET_KEY` separately in `/etc/lds-chatbot.env` and `/etc/lds-chatbot-admin.env` for production (invalidates existing tokens).
 - Keep `ACCESS_LOG_ADMIN_TOKEN` **identical** in both env files if Admin Portal reads main-system access logs.
 - Install Nginx snippet **`lds-deny-sensitive-paths.conf`** to return **404** on dotfiles and SCM paths (`/.git`, `/.hg`, `/.bzr`, `/_darcs`, `/BitKeeper`, …). Without it, SPA `try_files` can answer **HTTP 200** for non-existent paths and trigger **ZAP “Hidden File Found”** (plugin 40035 / CWE-538). See [Chapter 10 §10.12](./deployment_operations.md#1012-penetration-test-hidden-file-found-zap-40035).
+- Install **`lds-security-base.conf`** + **`lds-csp-spa.conf`** and include them in **`location /`** (and `/admin/`) so responses carry **`X-Frame-Options: SAMEORIGIN`** and CSP **`frame-ancestors 'self'`** — fixes **ZAP “Missing Anti-clickjacking Header”** (plugin 10020 / CWE-1021). See [Chapter 10 §10.13](./deployment_operations.md#1013-penetration-test-missing-anti-clickjacking-header-zap-10020).
 
 ## 3.6 Summary
 

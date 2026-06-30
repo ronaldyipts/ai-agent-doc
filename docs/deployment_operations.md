@@ -6,7 +6,7 @@ sidebar_position: 10
 
 This chapter documents **production and testing** operations for the **Learning Design Facilitator (LDF)** — implementation repo **LDS-Chatbot**. It complements [Chapter 3: Access Control](./login_page.md) and [Chapter 5: Postman](./postman.md).
 
-**Implementation reference:** `LDS-Chatbot/deploy/` (`nginx.conf`, `nginx-ideals-ldf-ssl.conf`, `nginx-deny-sensitive-paths.conf`, `backup.sh`, `*.service`, `env.*.example`).
+**Implementation reference:** `LDS-Chatbot/deploy/` (`nginx.conf`, `nginx-ideals-ldf-ssl.conf`, `nginx-security-base.conf`, `nginx-csp-spa.conf`, `nginx-maintenance-root.conf`, `nginx-deny-sensitive-paths.conf`, `backup.sh`, `*.service`, `env.*.example`).
 
 ---
 
@@ -39,14 +39,18 @@ location / {
 }
 ```
 
-with:
+with (must include security snippets — see [§10.13](#1013-penetration-test-missing-anti-clickjacking-header-zap-10020)):
 
 ```nginx
 location / {
+    include /etc/nginx/snippets/lds-security-base.conf;
+    include /etc/nginx/snippets/lds-csp-spa.conf;
     default_type text/html;
     return 503 '<!DOCTYPE html><html lang="zh-HK"><head><meta charset="UTF-8"><title>Maintenance</title></head><body style="font-family:sans-serif;text-align:center;padding:4rem"><h1>Learning Design Facilitator 網頁暫停使用</h1><p>系統維護中，請稍後再試。<br>The Learning Design Facilitator web interface is temporarily unavailable.</p><p><small>LDS 整合服務不受影響。</small></p></body></html>';
 }
 ```
+
+Reference copy: `LDS-Chatbot/deploy/nginx-maintenance-root.conf`.
 
 **Keep unchanged:**
 
@@ -296,4 +300,54 @@ Expected: **404** (not 200).
 
 ---
 
-*Last aligned with LDS-Chatbot: Admin Portal all-user 2FA, async `general_bot` jobs, `open_specialist_bot` handoff, `deploy/backup.sh`, RAG eight-bucket retrieval, Nginx UI maintenance pattern, Nginx deny sensitive paths (ZAP 40035).*
+## 10.13 Penetration test: Missing Anti-clickjacking Header (ZAP 10020)
+
+**Finding:** **Medium** — `GET https://ideals-ldf.cite.hku.hk/` missing **`X-Frame-Options`** and/or CSP **`frame-ancestors`** (CWE-1021, OWASP A05, ZAP plugin **10020**).
+
+### Root cause
+
+Clickjacking protection is provided by:
+
+| Header | Value (this deployment) |
+|--------|-------------------------|
+| `X-Frame-Options` | `SAMEORIGIN` |
+| `Content-Security-Policy` | `frame-ancestors 'self'` (in `lds-csp-spa.conf`) |
+
+Snippets live in `deploy/nginx-security-base.conf` and `deploy/nginx-csp-spa.conf`. They must be **installed on the server** and **included inside `location /`** (and `/admin/`). A bare `return 503` maintenance block without those includes will fail the scan.
+
+### Remediation
+
+1. Install snippets (if not already):
+
+```bash
+sudo cp deploy/nginx-security-base.conf /etc/nginx/snippets/lds-security-base.conf
+sudo cp deploy/nginx-csp-spa.conf /etc/nginx/snippets/lds-csp-spa.conf
+```
+
+2. Ensure `location /` includes both snippets (see `deploy/nginx-ideals-ldf-ssl.conf` or `deploy/nginx-maintenance-root.conf` for maintenance mode).
+
+3. Reload:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Verify
+
+```bash
+curl -sI https://ideals-ldf.cite.hku.hk/ | grep -iE 'x-frame-options|content-security-policy'
+```
+
+Expected:
+
+- `X-Frame-Options: SAMEORIGIN`
+- `Content-Security-Policy: ... frame-ancestors 'self' ...`
+
+### Pen-test response text (optional)
+
+> Anti-clickjacking headers are set on the root page via Nginx: `X-Frame-Options: SAMEORIGIN` and CSP `frame-ancestors 'self'`. Maintenance-mode `location /` was updated to include the security snippets.
+
+---
+
+*Last aligned with LDS-Chatbot: Admin Portal all-user 2FA, async `general_bot` jobs, `open_specialist_bot` handoff, `deploy/backup.sh`, RAG eight-bucket retrieval, Nginx UI maintenance pattern, Nginx deny sensitive paths (ZAP 40035), Nginx anti-clickjacking headers (ZAP 10020).*
