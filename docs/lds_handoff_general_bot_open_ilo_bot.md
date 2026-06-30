@@ -2,14 +2,14 @@
 sidebar_position: 8
 ---
 
-# Chapter 8: LDS handoff: General Bot specialist handoff (`open_ilo_bot` and generic schema)
+# Chapter 8: LDS handoff: General Bot specialist handoff (`open_specialist_bot` and legacy `open_ilo_bot`)
 
-**Status: DRAFT (proposal)**  
-**Goal:** Define a consistent handoff pattern from **General Bot** to a specialist bot. For ILO-related intent, backend can emit a handoff action in `actions`; LDS UI renders the trigger (button or equivalent), then LDS calls the mapped specialist API (for ILO, **`POST /api/ilo_bot`**).
+**Status: Implemented (LDS-Chatbot)**  
+**Goal:** Define the handoff pattern from **General Bot** to a specialist bot. For ILO-related intent, the backend emits a handoff action in `actions`; LDS UI renders the trigger (button or equivalent), then LDS calls the mapped specialist API (for ILO, **`POST /api/ilo_bot`**).
 
-> **Important:** At the time of writing, the **Agent backend may not yet emit this action in production**. This document fixes the **JSON contract** and **division of work** so LDS can design UI and flows in parallel. Backend delivery can be scheduled separately (e.g. feature flag plus rules or model output).
+> **Implementation:** Handoff is implemented in **LDS-Chatbot** `main.py` (`_build_open_specialist_ilo_action`, `_normalize_handoff_actions`). Prefer **`open_specialist_bot`**; **`open_ilo_bot`** remains a legacy alias.
 
-**Mirrored copy (implementation repo):** Keep in sync with **`docs/LDS_HANDOFF_GENERAL_BOT_OPEN_ILO_BOT.md`** in the **LDS-Chatbot** project; OpenAPI examples are in that repo’s **`docs/openapi.json`** (`POST /general_bot` response examples).
+**Source of truth:** LDS-Chatbot **`docs/openapi.json`** (`OpenSpecialistIloBotPayload`, `GeneralBotActionModel`, `/api/general_bot` examples). Keep this ai-agent doc aligned when OpenAPI changes.
 
 ---
 
@@ -17,8 +17,8 @@ sidebar_position: 8
 
 | Owner | Work |
 |--------|------|
-| **Agent / Chatbot backend** | Under agreed conditions, include **`action_type: "open_ilo_bot"`** in `actions` on **`POST /api/general_bot`** responses (with `payload` as below); keep **`POST /api/ilo_bot`** stable; provide test environment and examples after rollout. |
-| **LDS client application** | Parse `actions`; detect `open_ilo_bot`; render a trigger in LDS UI (labels from `payload` or your own i18n); on click, build the **`ilo_bot` request** aligned with the last **general_bot** call (`courseInfo`, `referrer_pathname`, `form_state`, etc.); call **`POST /api/ilo_bot`** and handle loading, errors, and tokens. |
+| **Agent / LDF backend** | When ILO intent is detected (and not show-only), include **`action_type: "open_specialist_bot"`** (or legacy **`open_ilo_bot`**) in **`POST /api/general_bot`** responses; keep **`POST /api/ilo_bot`** stable. |
+| **LDS client application** | Parse `actions`; detect **`open_specialist_bot`** (or legacy **`open_ilo_bot`**); render a trigger in LDS UI (labels from `payload` or your own i18n); on click, build the **`ilo_bot` request** aligned with the last **general_bot** call (`courseInfo`, `referrer_pathname`, `form_state`, etc.); call **`POST /api/ilo_bot`** and handle loading, errors, and tokens. |
 
 ---
 
@@ -74,7 +74,7 @@ Recommended new generic action:
 | `payload.specialist_type` | LDS calls |
 |-------|------|
 | `ilo_bot` | `POST /api/ilo_bot` |
-| `mc_bot` | `POST /api/mc_bot` (or project-approved MC endpoint) |
+| `mc_bot` | **Future only** — no `POST /api/mc_bot` in LDS-Chatbot today; schema reserved for forward compatibility |
 
 ### 3.3 Backward compatibility (`open_ilo_bot`)
 
@@ -156,7 +156,9 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
 }
 ```
 
-### Example C: MC handoff using generic action
+### Example C: MC handoff using generic action *(future — not implemented)*
+
+> **`mc_bot` is not implemented** in the current LDS-Chatbot deployment. Example below is illustrative for schema design only.
 
 ```json
 {
@@ -211,7 +213,7 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
 ## 6. Relationship to public specifications
 
 - Overall message shape should stay aligned with **[LDS External AI Agent — overall JSON structure](https://hkucite.github.io/lds-external-ai-agent/docs/overall-json-structure)**.
-- `open_specialist_bot` (generic) and `open_ilo_bot` (compatibility alias) are project-level proposals; if HKU CITE central specs use different names/fields, revise this doc and OpenAPI after alignment.
+- `open_specialist_bot` (generic) and `open_ilo_bot` (compatibility alias) are implemented in LDS-Chatbot; if HKU CITE central specs use different names/fields, revise this doc and `docs/openapi.json` after alignment.
 
 ---
 
@@ -224,3 +226,4 @@ To avoid breaking LDS integrations already reading `open_ilo_bot`, Agent may kee
 | 2026-03-25 | Narrative translated to English; sample `button_label_zh` values retained as optional i18n examples |
 | 2026-03-27 | Added decision rule (`show_suggestion` vs handoff); introduced generic `open_specialist_bot` schema; retained `open_ilo_bot` compatibility and added MC example |
 | 2026-03-30 | Documented `request_type` / `reload_metadata` on `POST /api/ilo_bot` for reload flows (see LDS-Chatbot `docs/openapi.json` → `ilo_request`) |
+| 2026-05-28 | Status updated to **Implemented**; `open_specialist_bot` documented as primary handoff action |

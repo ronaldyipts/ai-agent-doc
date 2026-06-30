@@ -6,7 +6,7 @@ sidebar_position: 5
 
 A curated **Postman Collection** is provided for streamlined testing. **Import only one JSON file** (the collection). Set **username** and **password** (the AI agent's Admin Portal credentials, not LDS) in the collection variables, run **1. Retrieve Access Token**, then call any API.
 
-**Auth**: The Admin Portal **does not offer public registration**. Accounts must be created by an existing admin via **POST /api/auth/users** (or by creating the first admin during initial deployment). Obtain a token only after an administrator has created your account.
+**Auth**: LDS integration uses **`POST /api/auth/token`** on the **main** host (`{{base_url}}/api/auth/token`), not `/admin/api/`. Use an Admin Portal **service account** (e.g. `lds` created with `create_admin.py --no-admin`) — these are not LDS main-system login credentials. Email OTP does **not** apply to this token ([Chapter 3](./login_page.md)). Create accounts via **`create_admin.py`** ([Chapter 10](./deployment_operations.md)); no public registration.
 
 ## Workflow (4 steps)
 
@@ -16,10 +16,20 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
    - No separate environment file needed; variables are built into the collection.
 
 2. **Set variables**
-   - Click the collection **LDS External AI Agent** → **Variables** tab.
+   - Click the collection **Learning Design Facilitator (LDF)** → **Variables** tab.
    - Set **`username`** and **`password`** (the **AI agent's Admin Portal** username and password, not LDS credentials).
    - **`client_id`**, **`client_secret`**, **`scope`** are optional (used only for the OAuth2 authorization-code request in Auth; **1. Retrieve Access Token** uses only username and password).
-   - **`scope`** is pre-set to `chatbot`; **`base_url`** to `http://ronald-test.cite.hku.hk`. Adjust if needed. Save.
+   - **`scope`** is pre-set to `chatbot`; **`base_url`** defaults to **`https://ideals-ldf.cite.hku.hk`** (production). For testing, set **`http://ronald-test.cite.hku.hk`**. Save.
+
+### Environments (`base_url`)
+
+| Environment | `base_url` | Protocol |
+|-------------|------------|----------|
+| **Production** | `https://ideals-ldf.cite.hku.hk` | HTTPS |
+| **Testing** | `http://ronald-test.cite.hku.hk` | HTTP |
+| **Local** | `http://127.0.0.1:5000` or `http://localhost:5000` | HTTP |
+
+Optional environment files: **`LDS-AI-Agent-Production.postman_environment.json`** (production) and **`LDS-AI-Agent-Testing.postman_environment.json`** (testing) — download from `static/postman/` after deploy.
 
 3. **Retrieve access token**
    - Open **0 - Auth** → send **1. Retrieve Access Token**.
@@ -35,41 +45,52 @@ A curated **Postman Collection** is provided for streamlined testing. **Import o
 | File | Purpose |
 |------|--------|
 | [**LDS-AI-Agent.postman_collection.json**](https://ronaldyipts.github.io/ai-agent-doc/postman/LDS-AI-Agent.postman_collection.json) | All API requests (Auth, System, Core) and built-in variables. **1. Retrieve Access Token** sends **x-www-form-urlencoded** body: `username`, `password`. Click the link to download, then Import in Postman. |
+| [**LDS-AI-Agent-Production.postman_collection.json**](https://ronaldyipts.github.io/ai-agent-doc/postman/LDS-AI-Agent-Production.postman_collection.json) | **Production smoke test** for `https://ideals-ldf.cite.hku.hk`. Bodies use [**COURSE.json**](./postman/COURSE.json). |
+| [**COURSE.json**](./postman/COURSE.json) | Canonical sample `courseInfo`, `form_state`, and full `general_bot` / `ilo_bot` request bodies. |
+| [**LDS-AI-Agent-Testing.postman_environment.json**](https://ronaldyipts.github.io/ai-agent-doc/postman/LDS-AI-Agent-Testing.postman_environment.json) | **Testing** `base_url`: `http://ronald-test.cite.hku.hk` |
+| [**LDS-AI-Agent-Production.postman_environment.json**](https://ronaldyipts.github.io/ai-agent-doc/postman/LDS-AI-Agent-Production.postman_environment.json) | **Production** `base_url`: `https://ideals-ldf.cite.hku.hk` |
+
+### Production site (`https://ideals-ldf.cite.hku.hk`)
+
+1. Import **`docs/postman/LDS-AI-Agent-Production.postman_collection.json`** (or download from the link above).
+2. Optional: import **`LDS-AI-Agent-Production.postman_environment.json`** (`base_url` pre-set to production).
+3. Set **`username`** / **`password`** (LDS service account or Admin Portal user).
+4. Run in order: **1. Retrieve Access Token** → **Health Check** → **Get Agent Info** → **General Bot** → (if HTTP **202**, **General Bot Job Status**) → **ILO Bot**.
+5. Request bodies are also documented in **`docs/postman/COURSE.json`** (`general_bot_request`, `ilo_bot_request_initial`, `ilo_bot_request_reload`).
+
+### Testing site (`http://ronald-test.cite.hku.hk`)
+
+1. Import the main or Production collection (same requests).
+2. Set **`base_url`** to **`http://ronald-test.cite.hku.hk`**, or import **`LDS-AI-Agent-Testing.postman_environment.json`**.
+3. Use the same token → health → bot flow as production.
+
+**Admin Portal (operators):** `https://ideals-ldf.cite.hku.hk/admin/` (production) or `http://ronald-test.cite.hku.hk/admin/` (testing). Runtime LDS integration still uses **`POST /api/auth/token`** on the main host, not `/admin/api/auth/token`.
 
 ### Collection split (important)
 
-- **LDS options/patterns testing** should use the official LDS collection:  
-  [**LDS-Rest-API-for-Chatbot.postman_collection.json**](https://hkucite.github.io/lds-external-ai-agent/lds/LDS-Rest-API-for-Chatbot.postman_collection.json)
-- **AI Agent endpoint testing** should continue using this project collection (`LDS-AI-Agent.postman_collection.json`), especially for:
+- **LDS options/patterns testing** (main system Laravel API): use the official LDS collection:  
+  [**LDS-Rest-API-for-Chatbot.postman_collection.json**](https://hkucite.github.io/lds-external-ai-agent/lds/LDS-Rest-API-for-Chatbot.postman_collection.json) *(LDS main-system API; filename uses legacy “Chatbot” label)*  
+  Includes individual option paths and optional **`options/aggregate`** (aggregate is **not** called by the Agent backend; see [Chapter 7 Appendix](./lds_rest_api_for_chatbot.md)).
+- **AI Agent endpoint testing**: use this project’s collection (`LDS-AI-Agent.postman_collection.json`), especially:
   - `POST /api/general_bot`
   - `POST /api/ilo_bot`
-
-#### LDS `options/aggregate` sample body
-
-```json
-{
-  "requests": [
-    { "path": "/courses/grade-levels-simplified", "params": {} },
-    { "path": "/learning-tasks/types-simplified", "params": {} },
-    { "path": "/intended-learning-outcomes/bloom-taxonomy-verbs-simplified", "params": {} }
-  ]
-}
-```
+  - `GET /api/info` (agent capabilities for LDS UI)
+  - `GET /api/jobs/{job_id}` (when `BOT_RESPONSE_MODE=async`)
 
 **Maintainers:** The download link serves the file from **`static/postman/LDS-AI-Agent.postman_collection.json`**. After editing the source collection in **`postman/LDS-AI-Agent.postman_collection.json`**, copy it to **`static/postman/`** before building/deploying so the public link serves the latest version.
 
 ## Collection structure
 
-- **0 - Auth**: **1. Retrieve Access Token** (form body: `username`, `password` → saves token), OAuth2 code exchange, Refresh Token, Me, Logout. **No public registration**; accounts are created by an admin (POST /api/auth/users).
-- **1 - System**: Health check (root and `/api/health`).
-- **2 - Core**: **General Bot**, **ILO Bot** (initial), **ILO Bot — reload** (same endpoint with `request_type` + `reload_metadata`), Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
+- **0 - Auth**: **1. Retrieve Access Token** (form body: `username`, `password` → saves token), OAuth2 code exchange, Refresh Token, Me, Logout. **No public registration**; accounts are created by an admin.
+- **1 - System**: Health check (root and `/api/health`), **Get Agent Info** (`/api/info`).
+- **2 - Core**: **General Bot**, **General Bot Job Status (Async)** (when General Bot returns `202`), **ILO Bot** (initial), **ILO Bot — reload**, Chat, Generate ILOs, Suggest Disciplinary Practices, Analyze Document, Extract Course Info, Save Conversation.
 
 ### LDS-dedicated endpoints (General Bot / ILO Bot)
 
 | Request | Endpoint | Required body | Optional body |
 |---------|----------|---------------|---------------|
-| **General Bot** | POST `/api/general_bot` | `message`, `courseInfo` | `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons` |
-| **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, same learning-design arrays as above; optional `request_type` (`initial` \| `reload`); for `reload`, optional `reload_metadata.original_suggestions` (array of last 3 suggestions: `statement`, `type_id`, `bloom_taxonomy_level_id`). CamelCase aliases supported. |
+| **General Bot** | POST `/api/general_bot` | `message`, `courseInfo` | `referrer_pathname`, `form_state`, learning-design arrays, `conversation_history`, `chat_session_id`, `locale` |
+| **ILO Bot** | POST `/api/ilo_bot` | `courseInfo` | `referrer_pathname`, `form_state`, learning-design arrays; `request_type` (`initial` \| `reload`); for `reload`, `reload_metadata.original_suggestions` (last 3 suggestions); `locale` (`zh_HK` \| `en_US`). CamelCase aliases supported. |
 
 Response format: `{ chat_message_reply: { text }, actions: [...] }`. The collection includes **ILO Bot — reload** for the `request_type` + `reload_metadata` contract; canonical field definitions live in **LDS-Chatbot** `docs/openapi.json` (`ilo_request`). See [Chapter 6: Main System Integration](./main_system_integration.md).
 
@@ -135,7 +156,7 @@ Edit the collection → **Variables** tab. No separate environment file needed.
 
 | Variable | Required for token flow | Description |
 |----------|--------------------------|-------------|
-| `base_url` | Yes | API base URL. Default: `http://ronald-test.cite.hku.hk` (deployed); use `http://localhost:5000` for local. |
+| `base_url` | Yes | **Production:** `https://ideals-ldf.cite.hku.hk` · **Testing:** `http://ronald-test.cite.hku.hk` · **Local:** `http://127.0.0.1:5000` |
 | `username` | Yes | AI agent's Admin Portal username (not LDS) |
 | `password` | Yes | AI agent's Admin Portal password (not LDS) |
 | `client_id` | No | OAuth2 client ID (for authorization-code exchange only; token request uses only username/password) |

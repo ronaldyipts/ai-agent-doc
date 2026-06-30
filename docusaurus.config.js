@@ -10,8 +10,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'LDS External AI Agent Documentation',
-  tagline: 'This documentation is prepared for designing the External AI agent for Learning Design Studio (LDS) within the IDEALS system.',
+  title: 'Learning Design Facilitator (LDF) — LDS External AI Agent',
+  tagline: 'Technical documentation for the Learning Design Facilitator (LDF), the External AI agent for Learning Design Studio (LDS) within the IDEALS system.',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -79,9 +79,9 @@ const config = {
         respectPrefersColorScheme: true,
       },
       navbar: {
-        title: 'LDS External AI Agent Documentation',
+        title: 'Learning Design Facilitator (LDF)',
         logo: {
-          alt: 'LDS External AI Agent Documentation Logo',
+          alt: 'Learning Design Facilitator (LDF) Documentation',
           src: 'img/logo.svg',
         },
         items: [

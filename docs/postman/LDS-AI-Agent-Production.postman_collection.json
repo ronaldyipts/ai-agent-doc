@@ -1,0 +1,277 @@
+{
+  "info": {
+    "_postman_id": "b7c3e901-4f2a-4d8e-9c11-production-lds-agent",
+    "name": "Learning Design Facilitator (LDF) — Production Smoke Test",
+    "description": "Production Postman collection for ideals-ldf.cite.hku.hk (Learning Design Facilitator / LDF).\n\nSetup:\n1. Import this collection.\n2. Collection → Variables → set username and password (Admin Portal / LDS service account).\n3. Run **1. Retrieve Access Token**.\n4. Run Health → Info → General Bot → ILO Bot.\n\nRequest bodies follow docs/postman/COURSE.json (LD 1490 — Engineering Design sample).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://ideals-ldf.cite.hku.hk"
+    },
+    {
+      "key": "username",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "job_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0 - Auth",
+      "item": [
+        {
+          "name": "1. Retrieve Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.access_token) pm.collectionVariables.set('access_token', body.access_token);",
+                  "  if (body.refresh_token) pm.collectionVariables.set('refresh_token', body.refresh_token);",
+                  "}",
+                  "pm.test('token issued', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "{{username}}", "type": "text" },
+                { "key": "password", "value": "{{password}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/api/auth/token",
+            "description": "Production token flow. Uses Admin Portal user DB when ADMIN_PORTAL_URL is set. Body: x-www-form-urlencoded username + password."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.access_token) pm.collectionVariables.set('access_token', body.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "refresh_token", "value": "{{refresh_token}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/api/auth/refresh"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1 - System",
+      "item": [
+        {
+          "name": "Health Check (API)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{base_url}}/api/health",
+            "description": "No auth. Expect status ok; lds_api.connected when LDS credentials are valid."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('health ok', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().status).to.eql('ok');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Agent Info",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/info",
+            "description": "Lists general_bot and ilo_bot tasks for LDS UI."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('info 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "RAG ILAP Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/rag/ilap/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - LDS Core (COURSE.json bodies)",
+      "description": "Bodies match docs/postman/COURSE.json — LD 1490 Engineering Design sample.",
+      "item": [
+        {
+          "name": "General Bot — course info (COURSE.json)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"What is an intended learning outcome (ILO), and how should I write one for this course?\",\n  \"locale\": \"en_US\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"title\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/course-info\",\n  \"form_state\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subject_ids\": [4, 5]\n  },\n  \"disciplinaryPractices\": [\n    {\n      \"id\": 201,\n      \"title\": \"Engineering inquiry\",\n      \"description\": \"Students ask questions and investigate problems using engineering methods.\"\n    }\n  ],\n  \"pedagogicalApproaches\": [\n    {\n      \"id\": 301,\n      \"title\": \"Design-based learning\",\n      \"description\": \"Students learn through iterative design challenges.\"\n    }\n  ],\n  \"intendedLearningOutcomes\": [\n    {\n      \"id\": 401,\n      \"statement\": \"Describe the main stages of the engineering design process.\",\n      \"type_id\": 1,\n      \"bloom_taxonomy_level_id\": 2\n    }\n  ],\n  \"lessons\": [\n    {\n      \"id\": 501,\n      \"title\": \"Introduction to engineering design\",\n      \"sequence\": 1\n    }\n  ]\n}\n"
+            },
+            "url": "{{base_url}}/api/general_bot",
+            "description": "From COURSE.json → general_bot_request. Required: message, courseInfo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "if (pm.response.code === 202 && data.job_id) {",
+                  "  pm.collectionVariables.set('job_id', String(data.job_id));",
+                  "}",
+                  "pm.test('general_bot 200 or 202', function () {",
+                  "  pm.expect([200, 202]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "General Bot — ILO handoff (COURSE.json)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Please help apply these ILO updates in LDS.\",\n  \"locale\": \"en_US\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/456/edit\",\n  \"form_state\": {\n    \"statement\": \"\",\n    \"type_id\": 0,\n    \"bloom_taxonomy_level_id\": 0\n  }\n}\n"
+            },
+            "url": "{{base_url}}/api/general_bot",
+            "description": "From COURSE.json → general_bot_handoff_request. May return open_specialist_bot action."
+          }
+        },
+        {
+          "name": "General Bot Job Status (async)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/jobs/{{job_id}}",
+            "description": "Poll when BOT_RESPONSE_MODE=async and general_bot returned 202 + job_id."
+          }
+        },
+        {
+          "name": "ILO Bot — initial (COURSE.json)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request_type\": \"initial\",\n  \"locale\": \"en_US\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"disciplinaryPractices\": [\n    {\n      \"id\": 201,\n      \"title\": \"Engineering inquiry\",\n      \"description\": \"Students ask questions and investigate problems using engineering methods.\"\n    }\n  ],\n  \"pedagogicalApproaches\": [\n    {\n      \"id\": 301,\n      \"title\": \"Design-based learning\",\n      \"description\": \"Students learn through iterative design challenges.\"\n    }\n  ],\n  \"intendedLearningOutcomes\": [\n    {\n      \"id\": 401,\n      \"statement\": \"Describe the main stages of the engineering design process.\",\n      \"type_id\": 1,\n      \"bloom_taxonomy_level_id\": 2\n    }\n  ],\n  \"lessons\": [\n    {\n      \"id\": 501,\n      \"title\": \"Introduction to engineering design\",\n      \"sequence\": 1\n    }\n  ]\n}\n"
+            },
+            "url": "{{base_url}}/api/ilo_bot",
+            "description": "From COURSE.json → ilo_bot_request_initial. Expect 3 suggestions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ilo_bot 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ILO Bot — reload (COURSE.json)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request_type\": \"reload\",\n  \"locale\": \"en_US\",\n  \"courseInfo\": {\n    \"topic\": \"Engineering Design\",\n    \"grade_level_id\": 5,\n    \"subjects\": [4, 5]\n  },\n  \"referrer_pathname\": \"/designstudio/1490/intended-learning-outcome/0/edit\",\n  \"form_state\": null,\n  \"reload_metadata\": {\n    \"original_suggestions\": [\n      {\n        \"statement\": \"Describe the main steps of the engineering design process.\",\n        \"type_id\": 1,\n        \"bloom_taxonomy_level_id\": 2\n      },\n      {\n        \"statement\": \"Explain the purpose of each stage in the engineering design cycle.\",\n        \"type_id\": 1,\n        \"bloom_taxonomy_level_id\": 2\n      },\n      {\n        \"statement\": \"Summarize how inquiry skills are applied during engineering design.\",\n        \"type_id\": 1,\n        \"bloom_taxonomy_level_id\": 2\n      }\n    ]\n  }\n}\n"
+            },
+            "url": "{{base_url}}/api/ilo_bot",
+            "description": "From COURSE.json → ilo_bot_request_reload."
+          }
+        }
+      ]
+    }
+  ]
+}

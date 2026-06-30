@@ -4,7 +4,13 @@ sidebar_position: 6
 
 # Chapter 6: Main System Integration
 
-This page describes what the main system (LDS) can ask this sub-system (AI Agent) to do. Once the main system has the **API endpoint, Client ID, Client Secret, and Access Key**, it can trigger the following APIs. The main system must obtain an **access token** first (see [Chapter 5: API Testing with Postman](./postman.md)), then call the endpoints with `Authorization: Bearer <access_token>`.
+This page describes what the main system (LDS) can ask the **Learning Design Facilitator (LDF)** to do. LDS needs:
+
+1. **Base URL** — e.g. `https://ideals-ldf.cite.hku.hk` (production) or `http://ronald-test.cite.hku.hk` (testing)
+2. **Service account** — username/password created in the Admin Portal user DB (e.g. `lds` via `create_admin.py --no-admin`)
+3. **Bearer token** — from **`POST /api/auth/token`** on the **main** host ([Chapter 3](./login_page.md))
+
+Then call integration endpoints with `Authorization: Bearer <access_token>`. For manual testing, see [Chapter 5: Postman](./postman.md).
 
 ---
 
@@ -14,11 +20,35 @@ This Agent is a **REST API Server only**. LDS should call API endpoints directly
 
 | Purpose | Port | Link to call |
 |---|---:|---|
-| Production API entry (recommended) | 80/443 | `http(s)://<agent-host>/api/general_bot` / `http(s)://<agent-host>/api/ilo_bot` |
+| Production API entry (recommended) | 443 | `https://ideals-ldf.cite.hku.hk/api/general_bot` / `https://ideals-ldf.cite.hku.hk/api/ilo_bot` |
+| Testing API entry | 80 | `http://ronald-test.cite.hku.hk/api/general_bot` / `http://ronald-test.cite.hku.hk/api/ilo_bot` |
 | FastAPI internal service (default deployment) | 5000 | `http://127.0.0.1:5000/api/general_bot` / `http://127.0.0.1:5000/api/ilo_bot` |
-| OpenAPI docs | same as API entry | `http(s)://<agent-host>/docs` |
+| OpenAPI docs | same as API entry | `https://ideals-ldf.cite.hku.hk/docs` (production) or `http://<testing-host>/docs` |
 
 If your environment uses different ports (e.g. `8000`), keep the same paths and replace host/port accordingly.
+
+**Production host:** `https://ideals-ldf.cite.hku.hk`  
+**Testing host:** `http://ronald-test.cite.hku.hk`  
+
+The public **LDF web UI** at production root may show a maintenance page; **LDS API integration** (`/api/general_bot`, `/api/ilo_bot`, `/api/auth/token`, etc.) remains available over HTTPS.
+
+---
+
+## Authentication for LDS (main API)
+
+LDS must **not** call `/admin/api/auth/token` for runtime integration. Use the **main** Agent token endpoint:
+
+| Step | Request |
+|------|---------|
+| 1 | `POST /api/auth/token` — `application/x-www-form-urlencoded`: `username`, `password` |
+| 2 | Response: `{ access_token, token_type: "bearer" }` |
+| 3 | All `/api/*` calls: `Authorization: Bearer <access_token>` |
+
+When `ADMIN_PORTAL_URL` is set (production), the main backend validates credentials via Admin Portal **`POST /api/auth/validate-credentials`** (internal; `X-Admin-Token` = `ACCESS_LOG_ADMIN_TOKEN`). **No OTP email is sent.** The main backend then issues its **own JWT**. **Email OTP applies only to `/admin/api/auth/token`** (Portal UI).
+
+Use a dedicated **service account** (e.g. `lds`) created with `create_admin.py --no-admin`. Human admin accounts are for Portal access only.
+
+Postman: [Chapter 5](./postman.md) — production collection `LDS-AI-Agent-Production.postman_collection.json`, sample bodies in [`COURSE.json`](./postman/COURSE.json).
 
 ---
 
@@ -30,7 +60,8 @@ When integrating with the LDS main system, **use these two LDS-compatible endpoi
 
 - **Purpose**: General learning-design conversation, guidance, and suggestions.
 - **Required**: `message`, `courseInfo`
-- **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`
+- **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`, `conversation_history` (aliases: `conversationHistory`, `chatHistory`), `chat_session_id`, `locale` (`zh_HK` \| `en_US`)
+- **LDS path behavior**: the dedicated LDS handler sets `skip_suggested_questions=true`; responses do **not** include `suggested_questions` (faster, LDS UI does not use them).
 - **Response mode**:
   - **Sync mode** (`BOT_RESPONSE_MODE=sync`, default): `200` with `{ chat_message_reply, actions }`
   - **Async mode** (`BOT_RESPONSE_MODE=async`): `202` with `{ job_id, status, check_url }`, then poll `GET /api/jobs/{job_id}`
@@ -48,9 +79,20 @@ When async mode is enabled:
    - `check_url` (for example: `/api/jobs/<job_id>`)
 3. LDS polls `GET /api/jobs/{job_id}` with the same Bearer token.
 4. Job status handling:
-   - `pending` / `running` → keep loading
+   - `pending` / `running` → keep polling (recommended interval **1–2 s**; max wait **~120 s** before timeout/retry UI)
    - `completed` → read `result` and render normally (`chat_message_reply`, `actions`)
    - `failed` → read `error` and show retry UI
+
+**HTTP errors on `GET /api/jobs/{job_id}`:**
+
+| Code | Meaning |
+|------|---------|
+| `403` | Bearer token user does not own this job |
+| `404` | Unknown `job_id` (expired, wrong host, or typo) |
+
+Jobs are stored in the main SQLite DB (`agent_jobs` table). There is no automatic TTL cleanup today—plan retention as part of go-live hygiene ([Chapter 10 §10.6](./deployment_operations.md#106-production-go-live-data-hygiene)).
+
+**Detecting async mode:** set `BOT_RESPONSE_MODE=async` in `/etc/lds-chatbot.env`, or observe `202 Accepted` from `POST /api/general_bot`. `POST /api/ilo_bot` is always synchronous.
 
 `GET /api/jobs/{job_id}` response shape:
 
@@ -75,15 +117,15 @@ When async mode is enabled:
 - Keep rendering logic unchanged once `result` is received.
 - Keep `POST /api/ilo_bot` as synchronous (no polling required for ILO today).
 
-#### DRAFT: `open_ilo_bot` action (General Bot → ILO Bot)
+#### Specialist handoff (General Bot → ILO Bot)
 
-The Agent **may** (once implemented) return an action with **`action_type: "open_ilo_bot"`** when the user is ILO-focused, so LDS can show a button that then calls **POST `/api/ilo_bot`**. **Contract, examples, responsibilities:** [LDS handoff: General Bot → ILO Bot](./lds_handoff_general_bot_open_ilo_bot.md). **Status:** DRAFT; production may not emit this yet.
+The Agent returns **`open_specialist_bot`** (recommended) or legacy **`open_ilo_bot`** when the user is ILO-focused and handoff is appropriate. **Contract, examples, responsibilities:** [Chapter 8: LDS handoff](./lds_handoff_general_bot_open_ilo_bot.md). **Status:** Implemented in LDS-Chatbot; see `docs/openapi.json`.
 
 ### POST `/api/ilo_bot` — Generate ILO suggestions
 
 - **Purpose**: Get AI-suggested Intended Learning Outcomes (e.g. when the user clicks “AI suggest ILO”).
 - **Required**: `courseInfo`
-- **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`, `request_type` (`initial` \| `reload`, default `initial`), `reload_metadata` (for `reload`: include `original_suggestions` with the last three UI suggestions so the model diversifies). Snake_case or camelCase accepted.
+- **Optional**: `referrer_pathname`, `form_state`, `disciplinaryPractices`, `pedagogicalApproaches`, `intendedLearningOutcomes`, `lessons`, `request_type` (`initial` \| `reload`, default `initial`), `reload_metadata` (for `reload`: include `original_suggestions` with the last three UI suggestions so the model diversifies), `locale` (`zh_HK` \| `en_US`). Snake_case or camelCase accepted.
 - **Response**:
   - Top level: `{ chat_message_reply: { text }, actions: [ ... ] }`
   - For each `show_suggestion` action, `payload.suggestions[]` items include:
@@ -132,7 +174,7 @@ When `request_type = reload`, backend applies additional diversity constraints:
 
 Lower threshold = stricter semantic dedup (more rewrites).
 
-**ILO prompt (Oscar):** ILO generation follows the rules in [ILO Prompt (Oscar)](./prompts/ilo_prompt_oscar.txt): four ILO categories (Disciplinary Knowledge, Disciplinary Skills, Generic Skills, Values and Attitudes), Bloom’s Taxonomy verbs, quality criteria (student-centred, measurable, specific, appropriate difficulty), cognitive progression, alignment with course information, and suggested counts per category (e.g. about four). Placeholders `{COURSE_INFORMATION}` and `{ILO_GUIDELINES}` are filled from the request body and RAG or guideline content.
+**ILO prompt:** ILO generation follows **`docs/prompts/ILO_Prompt.txt`** in LDS-Chatbot (mirrored in this doc site as [ILO Prompt (Oscar)](./prompts/ilo_prompt_oscar.txt)): four ILO categories, Bloom’s Taxonomy verbs, quality criteria, cognitive progression, alignment with course information. Placeholders `{COURSE_INFORMATION}` and `{ILO_GUIDELINES}` are filled at runtime (`api/ilo_prompt.py`).
 
 #### Button-triggered “AI suggest ILO” flow (main system → sub-system)
 
@@ -141,13 +183,13 @@ Lower threshold = stricter semantic dedup (more rewrites).
 3. **Sub-system**: Returns ILO suggestions (`chat_message_reply` + `actions`).
 4. **Main system**: Displays the response in a modal, sidebar, or form for the teacher to select or edit, then save.
 
-#### Contract Acceptance Checklist (for Ronson)
+#### Integration acceptance checklist
 
 - Caller can reach:
   - `POST /api/general_bot`
-  - `GET /api/jobs/{job_id}` (async mode)
+  - `GET /api/jobs/{job_id}` (when `BOT_RESPONSE_MODE=async`)
   - `POST /api/ilo_bot`
-  - `GET /docs`
+  - `GET /docs` or `GET /openapi.json`
 - In async mode, `POST /api/general_bot` returns 202 with `job_id` and `check_url`.
 - `GET /api/jobs/{job_id}` reaches `completed` and returns `result.chat_message_reply` + `result.actions`.
 - `POST /api/ilo_bot` returns 200 and includes `actions[].payload.suggestions[3]`.
@@ -185,10 +227,11 @@ The endpoints below remain available; **for LDS integration, prefer `/api/genera
 
 | Function | Method | Endpoint | Description |
 |----------|--------|----------|-------------|
+| **Agent capabilities** | GET | `/api/info` | Returns `chatbot_paths` and `tasks` (id, name, description, path) for LDS UI discovery |
 | **Simple health check** | GET | `/` | Check if the sub-system is up. |
-| **Detailed health check** | GET | `/api/health` | Get detailed health status. |
+| **Detailed health check** | GET | `/api/health` | Get detailed health status (includes LDS connectivity probe). |
 | **Swagger UI** | GET | `/docs` | Interactive API documentation. |
-| **OpenAPI spec** | GET | `/api/openapi.json` | OpenAPI (Swagger) JSON. |
+| **OpenAPI spec** | GET | `/openapi.json` | OpenAPI (Swagger) JSON (also in repo: `docs/openapi.json`) |
 
 ---
 
@@ -196,5 +239,5 @@ The endpoints below remain available; **for LDS integration, prefer `/api/genera
 
 - **LDS main system**: Prefer **POST `/api/general_bot`** (general conversation) and **POST `/api/ilo_bot`** (ILO suggestions), with **`courseInfo`** in the body and optional **`referrer_pathname`**, **`form_state`**, and learning-design arrays.
 - **form_state**: When triggering from a form page, send `form_state`. The Agent uses it to build context and may use LDS options lookup to resolve IDs to readable names.
-- Other endpoints (`/api/chat`, `/api/generate_ilos`, etc.) remain available; see [Chapter 2: Application Architecture](./app_archi.md) and [Chapter 5: API Testing with Postman](./postman.md) for details.
-- LDS options/patterns lookup API details are in **Appendix**: [Chapter 7: LDS REST API for Chatbot (Appendix)](./lds_rest_api_for_chatbot.md).
+- Other endpoints (`/api/chat`, `/api/generate_ilos`, etc.) remain available; see [Chapter 5: API Testing with Postman](./postman.md) and LDS-Chatbot `docs/openapi.json`.
+- LDS options/patterns lookup API details are in **Appendix**: [Chapter 7: LDS REST API for Learning Design Facilitator (Appendix)](./lds_rest_api_for_chatbot.md).
